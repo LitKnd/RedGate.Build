@@ -12,7 +12,7 @@
         .PARAMETER Base
         The Base branch name (Defaults to master)
         .OUTPUTS
-        An array PRs
+        A PR or null if not found
 #>
 #requires -Version 2
 function Get-PullRequest
@@ -30,9 +30,16 @@ function Get-PullRequest
 
         [string] $Base = "master"
     )
-    return Invoke-RestMethod `
-        -Uri "https://api.github.com/repos/red-gate/$Repo/pulls?head=$Head&base=$Base" `
+    $prs = Invoke-RestMethod `
+        -Uri "https://api.github.com/repos/red-gate/$Repo/pulls?head=red-gate:$Head&base=$Base" `
         -Headers @{Authorization="token $Token"} `
         -Method Get
+    
+    if($prs.length -eq 0)
+    {
+        return $null
+    }
+    
+    return $prs[0]
 }
 
