@@ -26,9 +26,9 @@ Function Update-PullRequest
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $Token,
 
-        # Pull Request ID
+        # Pull Request Number
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        $Id,
+        $Number,
 
         # A list of user logins to assign to the pull request.
         # Omit this parameter to unassign the pull request.
@@ -44,7 +44,7 @@ Function Update-PullRequest
         }
 
         return Invoke-RestMethod `
-                -Uri "https://api.github.com/repos/red-gate/$Repo/issues/$Id" `
+                -Uri "https://api.github.com/repos/red-gate/$Repo/issues/$Number" `
                 -Headers @{Authorization="token $Token"} `
                 -Method Patch `
                 -Body @"
