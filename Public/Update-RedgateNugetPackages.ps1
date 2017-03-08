@@ -75,9 +75,13 @@ function CreateNewBranchAndForcePush($NewBranchName, $CommitMessage){
     exec { & git checkout -B $NewBranchName }
     exec { & git commit -am $CommitMessage }
     exec { & git push -f origin $NewBranchName`:$NewBranchName }
-    
-    git config --local user.name $GitLocalUserName
-    git config --local user.email $GitLocalEmail
+    if($GitLocalUserName){
+        git config --local user.name $GitLocalUserName
+        git config --local user.email $GitLocalEmail
+    }else{
+        git config --local --unset user.name
+        git config --local --unset user.email
+    }
 }
 
 function UpdateNugetPackages($PackageIds, $Solution){
