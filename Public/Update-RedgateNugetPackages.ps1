@@ -72,9 +72,9 @@ function CreateNewBranchAndForcePush($NewBranchName, $CommitMessage){
     git config --local user.name "rgbuildmonkey"
     git config --local user.email "github-buildmonkey@red-gate.com"
 
-    exec { & git checkout -B $NewBranchName }
-    exec { & git commit -am $CommitMessage }
-    exec { & git push -f origin $NewBranchName`:$NewBranchName }
+    execute-command { & git checkout -B $NewBranchName }
+    execute-command { & git commit -am $CommitMessage }
+    execute-command { & git push -f origin $NewBranchName`:$NewBranchName }
     if($GitLocalUserName){
         git config --local user.name $GitLocalUserName
         git config --local user.email $GitLocalEmail
@@ -89,7 +89,7 @@ function UpdateNugetPackages($PackageIds, $Solution){
                         | ForEach-Object {
                             "-id", $_
                         }  
-    exec {
+    execute-command {
         & $NugetExe update $Solution -Verbosity detailed -noninteractive $NugetPackageParams
     }
 }
