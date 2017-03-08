@@ -31,13 +31,17 @@ Function Update-PullRequest
         $Id,
 
         # A list of user logins to assign to the pull request.
-        # Pass $null to unassign the pull request.
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        # Omit this parameter to unassign the pull request.
+        [Parameter(ValueFromPipelineByPropertyName)]
         [string[]] $Assignees
     )
     Process
     {
-        $AssigneesJson = if($Assignees.length -eq 0) { '[]' } else { $Assignees | ConvertTo-Json }
+        $AssigneesJson = switch($Assignees.count) {
+            0 { '[]' }
+            1 { "[`"$Assignees`"]"}
+            default { $Assignees | ConvertTo-Json }
+        }
 
         return Invoke-RestMethod `
                 -Uri "https://api.github.com/repos/red-gate/$Repo/issues/$Id" `
