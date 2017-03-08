@@ -41,7 +41,7 @@ function New-PullRequest
         [string] $Base = "master"
     )
     return Invoke-RestMethod `
-            -Uri 'https://api.github.com/repos/red-gate/$Repo/pulls' `
+            -Uri "https://api.github.com/repos/red-gate/$Repo/pulls" `
             -Headers @{Authorization="token $Token"} `
             -Method Post `
             -Body `

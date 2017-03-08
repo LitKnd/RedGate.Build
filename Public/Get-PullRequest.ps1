@@ -31,7 +31,7 @@ function Get-PullRequest
         [string] $Base = "master"
     )
     return Invoke-RestMethod `
-        -Uri 'https://api.github.com/repos/red-gate/$Repo/pulls?head=$Head&base=$Base' `
+        -Uri "https://api.github.com/repos/red-gate/$Repo/pulls?head=$Head&base=$Base" `
         -Headers @{Authorization="token $Token"} `
         -Method Get
 }
