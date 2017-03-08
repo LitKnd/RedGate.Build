@@ -5,7 +5,7 @@
         Updates a solution with the NuGet Packages IDs supplied        
         .PARAMETER Solution
         The name of the .sln file
-        .PARAMETER packageIds
+        .PARAMETER PackageIds
         An array of nuget Package IDs to update
 #>
 #requires -Version 2
@@ -17,9 +17,9 @@ function Update-NugetPackages
         [string] $Solution,
         
         [Parameter(Mandatory = $true)]
-        [string[]] $packageIds
+        [string[]] $PackageIds
     )
-    $NugetPackageParam = packageIds | ForEach-Object {
+    $NugetPackageParam = $PackageIds | ForEach-Object {
         "-id", $_
     }
 
