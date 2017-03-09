@@ -54,8 +54,10 @@ Function Update-RedgateNugetPackages
     }
     Process
     {
+        $packageConfigFiles = Get-NugetPackageConfigs -RootDir $RootDir
+
         $RedgatePackageIDs = Get-NugetPackageIDs `
-            -RootDir $RootDir `
+            -PackageConfigs $packageConfigFiles `
             -IncludedPackages $IncludedPackages `
             -ExcludedPackages $ExcludedPackages
 

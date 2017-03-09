@@ -12,9 +12,9 @@ function Get-NugetPackageIds
 {
     [CmdletBinding()]
     param(
-        # The root directory to search recursively for 'packages.config' files
+        # A list of 'packages.config' files
         [Parameter(Mandatory = $true)]
-        [string] $RootDir,
+        [FileInfo[]] $PackageConfigs,
 
         # A list of packages that will be upgraded.
         # Wildcards can be used.
@@ -25,12 +25,8 @@ function Get-NugetPackageIds
         # Shame on you if you're using this! (but yeah it can be handy :blush:)
         [string[]] $ExcludedPackages
     )
-    # Find all the packages.config
-    $packageConfigs = Get-ChildItem "$RootDir" -Recurse -Filter "packages.config" `
-                      | Where-Object{ $_.fullname -notmatch "\\(.build)|(packages)\\" } `
-                      | Resolve-Path
 
-    $AllPackages = $packageConfigs | ForEach-Object {
+    $AllPackages = $PackageConfigs | ForEach-Object {
         ([Xml]($_ | Get-Content)).packages.package.id
     } | Select-Object -Unique
 
