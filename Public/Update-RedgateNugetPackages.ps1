@@ -56,7 +56,7 @@ $($RedgatePackageIDs -join "`n")
 "@
 
         if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage $CommitMessage) {
-            New-PullRequestWithAssignees `
+            $PR = New-PullRequestWithAssignees `
                 -Token $GithubAPIToken `
                 -Repo $Repo `
                 -Head $UpdateBranchName `
@@ -69,6 +69,8 @@ $($RedgatePackageIDs -join "`n")
 ```
 This PR was generated automatically.
 "@
+
+            "Pull request is available at: $($PR.html_url)"
         }
     }
 }
