@@ -46,23 +46,30 @@ Function Update-RedgateNugetPackages
         # A list of labels to assign to the pull request.
         # Set this parameter to an empty list to remove all labels
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string[]] $Labels = $null
+        [string[]] $Labels = $null,
+        
+        # (Optional) A list of nuspec files for which we will update
+        # the //metadata/dependencies version ranges.
+        # Wildcards are supported
+        [string[]] $NuspecFiles
     )
     begin {
+        Push-Location $RootDir
         # Let's display all verbose messages for the time being
         $local:VerbosePreference = 'Continue'
     }
     Process
     {
-        $RedgatePackageIDs = Get-NugetPackageIDs `
-            -RootDir $RootDir `
+        $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
+
+        $RedgatePackageIDs = GetNugetPackageIds `
+            -PackageConfigs $packageConfigFiles `
             -IncludedPackages $IncludedPackages `
             -ExcludedPackages $ExcludedPackages
 
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
 
-        Set-Location $RootDir
-        "Location: $(Get-Location)"
+        Resolve-Path $NuspecFiles | Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles -verbose
 
         $UpdateBranchName = 'pkg-auto-update'
 
@@ -90,6 +97,9 @@ This PR was generated automatically.
             "Pull request is available at: $($PR.html_url)"
         }
     }
+    end {
+        Pop-Location
+    }
 }
 
 function UpdateNugetPackages($PackageIds, $Solution){
@@ -100,4 +110,33 @@ function UpdateNugetPackages($PackageIds, $Solution){
     execute-command {
         & $NugetExe update $Solution -Verbosity detailed -noninteractive $NugetPackageParams
     }
+}
+
+Function GetNugetPackageConfigs([Parameter(Mandatory, Position=0)]$RootDir)
+{
+    Get-ChildItem $RootDir -Recurse -Filter 'packages.config' `
+        | Where-Object{ $_.fullname -notmatch "\\(.build)|(packages)\\" } `
+        | Resolve-Path
+}
+
+function GetNugetPackageIds(
+    [Parameter(Mandatory = $true)][System.IO.FileInfo[]] $PackageConfigs,
+    [string[]] $IncludedPackages = @('Redgate.*'),
+    [string[]] $ExcludedPackages)
+{
+    $AllPackages = $PackageConfigs | ForEach-Object {
+        ([Xml]($_ | Get-Content)).packages.package.id
+    } | Select-Object -Unique
+
+    $FilteredPackageIDs = @()
+    foreach($pattern in $IncludedPackages) {
+        $FilteredPackageIDs += $AllPackages | Where-Object { $_ -like $pattern}
+    }
+
+    if($ExcludedPackages) {
+        # Remove execluded packages if any
+        $FilteredPackageIDs = $FilteredPackageIDs | Where-Object { $ExcludedPackages -notcontains $_ }
+    }
+
+    return $FilteredPackageIDs | Select-Object -Unique | Sort-Object
 }
