@@ -40,17 +40,22 @@ function New-PullRequest
 
         [string] $Base = "master"
     )
+
+    $Data = @{
+        title = $Title
+        body = $Body
+        head = $Head
+        base = $Base
+    } | ConvertTo-Json
+
+    Write-Verbose @"
+Creating Pull request with data:
+$Data
+"@
+
     return Invoke-RestMethod `
             -Uri "https://api.github.com/repos/red-gate/$Repo/pulls" `
             -Headers @{Authorization="token $Token"} `
             -Method Post `
-            -Body `
-@"
-{
-    "title": "$Title",
-    "body": "$Body",
-    "head": "$Head",
-    "base": "$Base"
-}
-"@
+            -Body $Data
 }
