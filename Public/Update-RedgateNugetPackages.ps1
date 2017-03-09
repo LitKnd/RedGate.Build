@@ -24,6 +24,15 @@ Function Update-RedgateNugetPackages
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $RootDir,
 
+        # A list of packages that will be upgraded.
+        # Wildcards can be used.
+        # Defaults to Redgate.*
+        [string[]] $IncludedPackages = @('Redgate.*'),
+
+        # A list of packages we do NOT want to update.
+        # Shame on you if you're using this! (but yeah it can be handy :blush:)
+        [string[]] $ExcludedPackages,
+
         # The solution file name
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $Solution,
@@ -39,9 +48,10 @@ Function Update-RedgateNugetPackages
     }
     Process
     {
-        $RedgatePackageIDs = Get-NugetPackageIDs -RootDir $RootDir `
-                                | Where-Object{ $_ -like "Redgate.*"} `
-                                | Sort
+        $RedgatePackageIDs = Get-NugetPackageIDs `
+            -RootDir $RootDir `
+            -IncludedPackages $IncludedPackages `
+            -ExcludedPackages $ExcludedPackages
 
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
 
