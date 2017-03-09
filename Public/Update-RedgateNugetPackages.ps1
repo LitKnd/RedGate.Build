@@ -39,9 +39,14 @@ Function Update-RedgateNugetPackages
                                 | Where-Object{ $_ -like "Redgate.*"} `
         
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
-
-        $changes = git status --porcelain
+    
+        Set-Location $RootDir
+        "Location: $(Get-Location)"
+       
+        "git status:"
+        $changes = execute-command { & git status --porcelain}
         if ($changes -eq $null){
+            "No changes made"
             return;
         }
         
@@ -66,6 +71,8 @@ Function Update-RedgateNugetPackages
 }
 
 function CreateNewBranchAndForcePush($NewBranchName, $CommitMessage){
+    "CreateNewBranchAndForcePush"
+    
     $GitLocalUserName = git config --local user.name
     $GitLocalEmail = git config --local user.email
 
