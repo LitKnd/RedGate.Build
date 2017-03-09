@@ -60,7 +60,6 @@ $($RedgatePackageIDs -join "`n")
                 -Token $GithubAPIToken `
                 -Repo $Repo `
                 -Head $UpdateBranchName `
-                -Base $Base `
                 -Assignees $Assignees `
                 -Title "Redgate Nuget Package Auto-Update" `
                 -Body @"
