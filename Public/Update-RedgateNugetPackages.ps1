@@ -33,6 +33,10 @@ Function Update-RedgateNugetPackages
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string[]] $Assignees
     )
+    begin {
+        # Let's display all verbose messages for the time being
+        $local:VerbosePreference = 'Continue'
+    }
     Process
     {
         $RedgatePackageIDs = Get-NugetPackageIDs -RootDir $RootDir `
@@ -46,32 +50,13 @@ Function Update-RedgateNugetPackages
         $UpdateBranchName = 'pkg-auto-update'
 
         if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage "Updated $RedgatePackageIDs") {
-            $ExistingPR = Get-PullRequest -Token $GithubAPIToken -Repo $Repo -Head $UpdateBranchName
-
-            if($ExistingPR -eq $null) {
-                "No open PR found - Creating a new one..."
-
-                $NewPR = New-PullRequest `
-                    -Token $GithubAPIToken `
-                    -Repo $Repo `
-                    -Head $UpdateBranchName `
-                    -Title "Redgate Nuget Package Auto-Update" `
-                    -Body "The following packages were updated: $RedgatePackageIDs.  This PR was generated automatically."
-
-                "PR Created $($NewPR.url)"
-                "Assigning PR $($NewPR.id) to $NugetAutoUpdateAssignees"
-
-                Update-PullRequest `
-                    -Token $GithubAPIToken `
-                    -Repo $Repo `
-                    -Number $NewPR.number `
-                    -Assignees $Assignees
-
-                "PR Assigned"
-
-            } else {
-                "PR already exists: $($ExistingPR.url)"
-            }
+            New-PullRequestWithAssignees `
+                -Token $GithubAPIToken `
+                -Repo $Repo `
+                -Head $UpdateBranchName `
+                -Base $Base `
+                -Title "Redgate Nuget Package Auto-Update" `
+                -Body "The following packages were updated: $RedgatePackageIDs.  This PR was generated automatically."
         }
     }
 }
