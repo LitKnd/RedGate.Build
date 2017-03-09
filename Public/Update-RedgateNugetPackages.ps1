@@ -69,7 +69,12 @@ Function Update-RedgateNugetPackages
 
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
 
-        Resolve-Path $NuspecFiles | Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles -verbose
+        if($NuspecFiles) {
+            Resolve-Path $NuspecFiles | ForEach-Object{
+                Update-NuspecDependenciesVersions -NuspecFilePath $_ -PackagesConfigPaths $packageConfigFiles -verbose
+            }
+        }
+
 
         $UpdateBranchName = 'pkg-auto-update'
 
