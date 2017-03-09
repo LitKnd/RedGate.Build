@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Updates all the packages in a solution whose ID starts with `Redgate.` and creates a PR 
+    Updates all the packages in a solution whose ID starts with `Redgate.` and creates a PR
 
 .DESCRIPTION
-    Updates all the packages in a solution whose ID starts with `Redgate.` and creates a PR 
+    Updates all the packages in a solution whose ID starts with `Redgate.` and creates a PR
 
 #>
 Function Update-RedgateNugetPackages
@@ -23,7 +23,7 @@ Function Update-RedgateNugetPackages
         # The root directory of the solution
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $RootDir,
-        
+
         # The solution file name
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $Solution,
@@ -33,61 +33,45 @@ Function Update-RedgateNugetPackages
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string[]] $Assignees
     )
+    begin {
+        # Let's display all verbose messages for the time being
+        $local:VerbosePreference = 'Continue'
+    }
     Process
     {
         $RedgatePackageIDs = Get-NugetPackageIDs -RootDir $RootDir `
                                 | Where-Object{ $_ -like "Redgate.*"} `
-        
+                                | Sort
+
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
-    
+
         Set-Location $RootDir
         "Location: $(Get-Location)"
-       
-        "git status:"
-        $changes = execute-command { & git status --porcelain}
-        if ($changes -eq $null){
-            "No changes made"
-            return;
+
+        $UpdateBranchName = 'pkg-auto-update'
+
+        $CommitMessage = @"
+Updated $($RedgatePackageIDs.Count) Redgate packages:
+$($RedgatePackageIDs -join "`n")
+"@
+
+        if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage $CommitMessage) {
+            $PR = New-PullRequestWithAssignees `
+                -Token $GithubAPIToken `
+                -Repo $Repo `
+                -Head $UpdateBranchName `
+                -Assignees $Assignees `
+                -Title "Redgate Nuget Package Auto-Update" `
+                -Body @"
+The following packages were updated (or are already up to date):
+`````````
+$($RedgatePackageIDs -join "`n")
+`````````
+This PR was generated automatically.
+"@
+
+            "Pull request is available at: $($PR.html_url)"
         }
-        
-        $UpdateBranchName = "pkg-auto-update"
-        CreateNewBranchAndForcePush -NewBranchName $UpdateBranchName -CommitMessage "Updated $RedgatePackageIDs"
-
-        $ExistingPR = Get-PullRequest -Token $GithubAPIToken -Repo $Repo -Head $UpdateBranchName
-        
-        if($ExistingPR -eq $null){
-            "No open PR found - Creating a new one..."
-            $NewPR = New-PullRequest -Token $GithubAPIToken -Repo $Repo -Head $UpdateBranchName -Title "Redgate Nuget Package Auto-Update" -Body "The following packages were updated: $RedgatePackageIDs.  This PR was generated automatically."
-            "PR Created ${NewPR.url}"
-            "Assigning PR ${NewPR.id} to $NugetAutoUpdateAssignees"
-            Update-PullRequest -Token $GithubAPIToken -Repo $Repo -Number $NewPR.number -Assignees $Assignees
-            "PR Assigned"
-            
-        }else{
-            "PR already exists:"
-            ${ExistingPR}
-        }
-    }
-}
-
-function CreateNewBranchAndForcePush($NewBranchName, $CommitMessage){
-    "CreateNewBranchAndForcePush"
-    
-    $GitLocalUserName = git config --local user.name
-    $GitLocalEmail = git config --local user.email
-
-    git config --local user.name "rgbuildmonkey"
-    git config --local user.email "github-buildmonkey@red-gate.com"
-
-    execute-command { & git checkout -B $NewBranchName }
-    execute-command { & git commit -am $CommitMessage }
-    execute-command { & git push -f origin $NewBranchName`:$NewBranchName }
-    if($GitLocalUserName){
-        git config --local user.name $GitLocalUserName
-        git config --local user.email $GitLocalEmail
-    }else{
-        git config --local --unset user.name
-        git config --local --unset user.email
     }
 }
 
@@ -95,7 +79,7 @@ function UpdateNugetPackages($PackageIds, $Solution){
     $NugetPackageParams = $PackageIds `
                         | ForEach-Object {
                             "-id", $_
-                        }  
+                        }
     execute-command {
         & $NugetExe update $Solution -Verbosity detailed -noninteractive $NugetPackageParams
     }
