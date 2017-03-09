@@ -56,6 +56,7 @@ Function Update-RedgateNugetPackages
                 -Repo $Repo `
                 -Head $UpdateBranchName `
                 -Base $Base `
+                -Assignees $Assignees `
                 -Title "Redgate Nuget Package Auto-Update" `
                 -Body @"
 The following packages were updated (or are already up to date):

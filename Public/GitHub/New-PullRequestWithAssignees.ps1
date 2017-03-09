@@ -35,6 +35,10 @@ Function New-PullRequestWithAssignees
         [Parameter(Mandatory)]
         [string] $Head,
 
+        # A list of user logins to assign to the pull request.
+        # Omit this parameter to unassign the pull request.
+        [string[]] $Assignees,
+
         # The name of the branch to pull $Head into.
         # Defaults to master
         [string] $Base = 'master'
@@ -58,7 +62,7 @@ Function New-PullRequestWithAssignees
         Write-Verbose "PR already exists: $($PullRequest.url)"
     }
 
-    Write-Verbose "Assigning PR $($PullRequest.id) to $NugetAutoUpdateAssignees"
+    Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees"
 
     Update-PullRequest `
         -Token $Token `
@@ -66,7 +70,7 @@ Function New-PullRequestWithAssignees
         -Number $PullRequest.number `
         -Assignees $Assignees
 
-    Write-Verbose "PR $($PullRequest.id) assigned to $NugetAutoUpdateAssignees"
+    Write-Verbose "PR $($PullRequest.id) assigned to $Assignees"
 
     #return the PR object for consumers to use.
     $PullRequest
