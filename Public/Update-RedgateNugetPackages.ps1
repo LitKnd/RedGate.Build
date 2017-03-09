@@ -48,19 +48,10 @@ Function Update-RedgateNugetPackages
     }
     Process
     {
-        $AllPackages = Get-NugetPackageIDs -RootDir $RootDir
-
-        $RedgatePackageIDs = @()
-        foreach($pattern in $IncludedPackages) {
-            $RedgatePackageIDs += $AllPackages | Where-Object { $_ -like $pattern}
-        }
-
-        if($ExcludedPackages) {
-            # Remove execluded packages if any
-            $RedgatePackageIDs | Where-Object { $ExcludedPackages -notcontains $_ }
-        }
-
-        $RedgatePackageIDs = $RedgatePackageIDs | Select -Unique | Sort
+        $RedgatePackageIDs = Get-NugetPackageIDs `
+            -RootDir $RootDir `
+            -IncludedPackages $IncludedPackages `
+            -ExcludedPackages $ExcludedPackages
 
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
 
