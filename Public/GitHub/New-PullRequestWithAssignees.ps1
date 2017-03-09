@@ -57,9 +57,9 @@ Function New-PullRequestWithAssignees
             -Title $Title `
             -Body $Body
 
-        Write-Verbose "PR Created $($PullRequest.url)"
+        Write-Verbose "PR Created $($PullRequest.html_url)"
     } else {
-        Write-Verbose "PR already exists: $($PullRequest.url)"
+        Write-Verbose "PR already exists: $($PullRequest.html_url)"
     }
 
     Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees"
