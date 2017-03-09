@@ -14,7 +14,7 @@ function Get-NugetPackageIds
     param(
         # A list of 'packages.config' files
         [Parameter(Mandatory = $true)]
-        [FileInfo[]] $PackageConfigs,
+        [System.IO.FileInfo[]] $PackageConfigs,
 
         # A list of packages that will be upgraded.
         # Wildcards can be used.
