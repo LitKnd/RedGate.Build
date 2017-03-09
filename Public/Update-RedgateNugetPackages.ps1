@@ -60,9 +60,9 @@ Function Update-RedgateNugetPackages
     }
     Process
     {
-        $packageConfigFiles = Get-NugetPackageConfigs -RootDir $RootDir
+        $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
 
-        $RedgatePackageIDs = Get-NugetPackageIDs `
+        $RedgatePackageIDs = GetNugetPackageIds `
             -PackageConfigs $packageConfigFiles `
             -IncludedPackages $IncludedPackages `
             -ExcludedPackages $ExcludedPackages
@@ -110,4 +110,33 @@ function UpdateNugetPackages($PackageIds, $Solution){
     execute-command {
         & $NugetExe update $Solution -Verbosity detailed -noninteractive $NugetPackageParams
     }
+}
+
+Function GetNugetPackageConfigs([Parameter(Mandatory, Position=0)]$RootDir)
+{
+    Get-ChildItem $RootDir -Recurse -Filter 'packages.config' `
+        | Where-Object{ $_.fullname -notmatch "\\(.build)|(packages)\\" } `
+        | Resolve-Path
+}
+
+function GetNugetPackageIds(
+    [Parameter(Mandatory = $true)][System.IO.FileInfo[]] $PackageConfigs,
+    [string[]] $IncludedPackages = @('Redgate.*'),
+    [string[]] $ExcludedPackages)
+{
+    $AllPackages = $PackageConfigs | ForEach-Object {
+        ([Xml]($_ | Get-Content)).packages.package.id
+    } | Select-Object -Unique
+
+    $FilteredPackageIDs = @()
+    foreach($pattern in $IncludedPackages) {
+        $FilteredPackageIDs += $AllPackages | Where-Object { $_ -like $pattern}
+    }
+
+    if($ExcludedPackages) {
+        # Remove execluded packages if any
+        $FilteredPackageIDs = $FilteredPackageIDs | Where-Object { $ExcludedPackages -notcontains $_ }
+    }
+
+    return $FilteredPackageIDs | Select-Object -Unique | Sort-Object
 }
