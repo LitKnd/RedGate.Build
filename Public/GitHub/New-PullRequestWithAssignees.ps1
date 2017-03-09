@@ -36,8 +36,15 @@ Function New-PullRequestWithAssignees
         [string] $Head,
 
         # A list of user logins to assign to the pull request.
-        # Omit this parameter to unassign the pull request.
-        [string[]] $Assignees,
+        # Set this parameter to an empty list to unassign the pull request.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]] $Assignees = $null,
+        
+        
+        # A list of labels to assign to the pull request.
+        # Set this parameter to an empty list to remove all labels
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]] $Labels = $null,
 
         # The name of the branch to pull $Head into.
         # Defaults to master
@@ -62,13 +69,14 @@ Function New-PullRequestWithAssignees
         Write-Verbose "PR already exists: $($PullRequest.html_url)"
     }
 
-    Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees"
+    Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees with Labels $Labels"
 
     $PullRequest = Update-PullRequest `
         -Token $Token `
         -Repo $Repo `
         -Number $PullRequest.number `
-        -Assignees $Assignees
+        -Assignees $Assignees `
+        -Labels $Labels
 
     Write-Verbose "PR $($PullRequest.id) assigned to $Assignees"
 

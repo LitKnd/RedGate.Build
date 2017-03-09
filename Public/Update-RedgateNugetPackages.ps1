@@ -38,9 +38,15 @@ Function Update-RedgateNugetPackages
         $Solution,
 
         # A list of user logins to assign to the pull request.
-        # Omit this parameter to unassign the pull request.
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [string[]] $Assignees
+        # Set this parameter to an empty list to unassign the pull request.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]] $Assignees = $null,
+        
+        
+        # A list of labels to assign to the pull request.
+        # Set this parameter to an empty list to remove all labels
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]] $Labels = $null
     )
     begin {
         # Let's display all verbose messages for the time being
@@ -71,6 +77,7 @@ $($RedgatePackageIDs -join "`n")
                 -Repo $Repo `
                 -Head $UpdateBranchName `
                 -Assignees $Assignees `
+                -Labels $Labels `
                 -Title "Redgate Nuget Package Auto-Update" `
                 -Body @"
 The following packages were updated (or are already up to date):
