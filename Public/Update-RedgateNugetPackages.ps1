@@ -50,7 +50,12 @@ Function Update-RedgateNugetPackages
 
         $UpdateBranchName = 'pkg-auto-update'
 
-        if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage "Updated $($RedgatePackageIDs.Count) Redgate packages") {
+        $CommitMessage = @"
+Updated $($RedgatePackageIDs.Count) Redgate packages:
+$($RedgatePackageIDs -join "`n")
+"@
+
+        if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage $CommitMessage) {
             New-PullRequestWithAssignees `
                 -Token $GithubAPIToken `
                 -Repo $Repo `
@@ -61,7 +66,7 @@ Function Update-RedgateNugetPackages
                 -Body @"
 The following packages were updated (or are already up to date):
 ```
-$($RedgatePackageIDs -join '\n')
+$($RedgatePackageIDs -join "`n")
 ```
 This PR was generated automatically.
 "@
