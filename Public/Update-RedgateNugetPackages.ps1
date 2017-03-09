@@ -41,6 +41,7 @@ Function Update-RedgateNugetPackages
     {
         $RedgatePackageIDs = Get-NugetPackageIDs -RootDir $RootDir `
                                 | Where-Object{ $_ -like "Redgate.*"} `
+                                | Sort
 
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
 
@@ -49,14 +50,20 @@ Function Update-RedgateNugetPackages
 
         $UpdateBranchName = 'pkg-auto-update'
 
-        if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage "Updated $RedgatePackageIDs") {
+        if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage "Updated $($RedgatePackageIDs.Count) Redgate packages") {
             New-PullRequestWithAssignees `
                 -Token $GithubAPIToken `
                 -Repo $Repo `
                 -Head $UpdateBranchName `
                 -Base $Base `
                 -Title "Redgate Nuget Package Auto-Update" `
-                -Body "The following packages were updated: $RedgatePackageIDs.  This PR was generated automatically."
+                -Body @"
+The following packages were updated (or are already up to date):
+```
+$($RedgatePackageIDs -join '\n')
+```
+This PR was generated automatically.
+"@
         }
     }
 }
