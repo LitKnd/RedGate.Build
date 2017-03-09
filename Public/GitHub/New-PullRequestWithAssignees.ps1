@@ -63,7 +63,7 @@ Function New-PullRequestWithAssignees
     Update-PullRequest `
         -Token $Token `
         -Repo $Repo `
-        -Number $NewPR.number `
+        -Number $PullRequest.number `
         -Assignees $Assignees
 
     Write-Verbose "PR $($PullRequest.id) assigned to $NugetAutoUpdateAssignees"
