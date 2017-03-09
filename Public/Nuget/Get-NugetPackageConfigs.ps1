@@ -16,7 +16,7 @@ Function Get-NugetPackageConfigs
     (
         # The root directory to search recursively for 'packages.config' files
         [Parameter(Mandatory, Position=0)]
-        $RootDir,
+        $RootDir
     )
 
     Get-ChildItem $RootDir -Recurse -Filter 'packages.config' `
