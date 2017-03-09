@@ -31,17 +31,23 @@ Function Update-PullRequest
         $Number,
 
         # A list of user logins to assign to the pull request.
-        # Omit this parameter to unassign the pull request.
+        # Set this parameter to an empty list to unassign the pull request.
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string[]] $Assignees
+        [string[]] $Assignees = $null,
+        
+        # A list of labels to assign to the pull request.
+        # Set this parameter to an empty list to remove all labels
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]] $Labels = $null
     )
     Process
     {
-        $AssigneesJson = switch($Assignees.count) {
-            0 { '[]' }
-            1 { "[`"$Assignees`"]"}
-            default { $Assignees | ConvertTo-Json }
+        if($Labels -eq $null -and $Assignees -eq $null){
+            return
         }
+
+        $AssigneesJson = JsonifyList -List $Assignees;
+        $LabelsJson = JsonifyList -List $Labels;
 
         return Invoke-RestMethod `
                 -Uri "https://api.github.com/repos/red-gate/$Repo/issues/$Number" `
@@ -49,8 +55,23 @@ Function Update-PullRequest
                 -Method Patch `
                 -Body @"
 {
-    "assignees": $AssigneesJson
+    "assignees": $AssigneesJson,
+    "labels": $LabelsJson
 }
 "@
     }
+}
+
+function JsonifyList($List){
+    if($List -eq $null){
+        return "null";
+    }
+
+    $json =switch($List.count) {
+        0 { '[]' }
+        1 { "[`"$List`"]"}
+        default { $List | ConvertTo-Json }
+    }
+
+    return $json;
 }
