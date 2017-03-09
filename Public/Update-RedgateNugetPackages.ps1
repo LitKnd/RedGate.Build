@@ -46,9 +46,15 @@ Function Update-RedgateNugetPackages
         # A list of labels to assign to the pull request.
         # Set this parameter to an empty list to remove all labels
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string[]] $Labels = $null
+        [string[]] $Labels = $null,
+        
+        # (Optional) A list of nuspec files for which we will update
+        # the //metadata/dependencies version ranges.
+        # Wildcards are supported
+        [string[]] $NuspecFiles
     )
     begin {
+        Push-Location $RootDir
         # Let's display all verbose messages for the time being
         $local:VerbosePreference = 'Continue'
     }
@@ -63,8 +69,7 @@ Function Update-RedgateNugetPackages
 
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
 
-        Set-Location $RootDir
-        "Location: $(Get-Location)"
+        Resolve-Path $NuspecFiles | Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles -verbose
 
         $UpdateBranchName = 'pkg-auto-update'
 
@@ -91,6 +96,9 @@ This PR was generated automatically.
 
             "Pull request is available at: $($PR.html_url)"
         }
+    }
+    end {
+        Pop-Location
     }
 }
 
