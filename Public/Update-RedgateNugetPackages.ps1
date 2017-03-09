@@ -41,13 +41,13 @@ Function Update-RedgateNugetPackages
         # Set this parameter to an empty list to unassign the pull request.
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]] $Assignees = $null,
-        
-        
+
+
         # A list of labels to assign to the pull request.
         # Set this parameter to an empty list to remove all labels
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]] $Labels = $null,
-        
+
         # (Optional) A list of nuspec files for which we will update
         # the //metadata/dependencies version ranges.
         # Wildcards are supported
@@ -115,8 +115,7 @@ function UpdateNugetPackages($PackageIds, $Solution){
 Function GetNugetPackageConfigs([Parameter(Mandatory, Position=0)]$RootDir)
 {
     Get-ChildItem $RootDir -Recurse -Filter 'packages.config' `
-        | Where-Object{ $_.fullname -notmatch "\\(.build)|(packages)\\" } `
-        | Resolve-Path
+        | Where-Object{ $_.fullname -notmatch "\\(.build)|(packages)\\" }
 }
 
 function GetNugetPackageIds(
