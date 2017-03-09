@@ -64,7 +64,7 @@ Function New-PullRequestWithAssignees
 
     Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees"
 
-    Update-PullRequest `
+    $PullRequest = Update-PullRequest `
         -Token $Token `
         -Repo $Repo `
         -Number $PullRequest.number `
