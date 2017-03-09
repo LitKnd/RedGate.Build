@@ -50,6 +50,7 @@ Function Push-GitChangesToBranch
     git config --local user.email $CommitEmail
 
     execute-command { & git checkout -B $BranchName }
+    execute-command { & git add --all }
     execute-command { & git commit -am $CommitMessage }
     execute-command { & git push -f $RemoteName $BranchName`:$BranchName }
     if($GitLocalUserName){
