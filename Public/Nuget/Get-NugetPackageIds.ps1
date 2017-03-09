@@ -23,7 +23,7 @@ function Get-NugetPackageIds
 
         # A list of packages we do NOT want to update.
         # Shame on you if you're using this! (but yeah it can be handy :blush:)
-        [string[]] $ExcludedPackages,
+        [string[]] $ExcludedPackages
     )
     # Find all the packages.config
     $packageConfigs = Get-ChildItem "$RootDir" -Recurse -Filter "packages.config" `
