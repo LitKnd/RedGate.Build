@@ -88,6 +88,7 @@ The following packages were updated (or are already up to date):
 $($RedgatePackageIDs -join "`n")
 `````````
 This PR was generated automatically.
+
 "@
 
         if(Test-Path .\.github\PULL_REQUEST_TEMPLATE.md){
