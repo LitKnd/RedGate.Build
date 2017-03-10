@@ -15,6 +15,9 @@ Function Update-RedgateNugetPackages
         # Name of the repo the pull request belong to
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string] $Repo,
+        
+        # (Optional) The title of the PR created in GitHub
+        [string] $PRTitle = "Redgate Nuget Package Auto-Update",
 
         # The name of the branch that will be pushed with any changes
         [string] $UpdateBranchName = 'pkg-auto-update',
@@ -102,7 +105,7 @@ This PR was generated automatically.
                 -Head $UpdateBranchName `
                 -Assignees $Assignees `
                 -Labels $Labels `
-                -Title "Redgate Nuget Package Auto-Update" `
+                -Title $PRTitle `
                 -Body $PRBody
 
             "Pull request is available at: $($PR.html_url)"
