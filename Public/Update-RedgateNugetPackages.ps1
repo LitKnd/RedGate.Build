@@ -14,7 +14,7 @@ Function Update-RedgateNugetPackages
     (
         # Name of the repo the pull request belong to
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        $Repo,
+        [string] $Repo,
 
         # github api access token with full repo permissions
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
@@ -22,7 +22,7 @@ Function Update-RedgateNugetPackages
 
         # The root directory of the solution
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        $RootDir,
+        [string] $RootDir,
 
         # A list of packages that will be upgraded.
         # Wildcards can be used.
