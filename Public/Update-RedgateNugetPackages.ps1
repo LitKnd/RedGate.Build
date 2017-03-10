@@ -92,7 +92,7 @@ This PR was generated automatically.
 "@
 
         if(Test-Path .\.github\PULL_REQUEST_TEMPLATE.md){
-            $PRBody += Get-Content .\.github\PULL_REQUEST_TEMPLATE.md;
+            $PRBody += (Get-Content .\.github\PULL_REQUEST_TEMPLATE.md) -join "`n";
         }
 
         if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage $CommitMessage) {
