@@ -16,6 +16,9 @@ Function Update-RedgateNugetPackages
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string] $Repo,
 
+        # The name of the branch that will be pushed with any changes
+        [string] $UpdateBranchName = 'pkg-auto-update',
+
         # github api access token with full repo permissions
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $GithubAPIToken,
@@ -41,7 +44,6 @@ Function Update-RedgateNugetPackages
         # Set this parameter to an empty list to unassign the pull request.
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]] $Assignees = $null,
-
 
         # A list of labels to assign to the pull request.
         # Set this parameter to an empty list to remove all labels
@@ -74,9 +76,6 @@ Function Update-RedgateNugetPackages
                 Select-Object -ExpandProperty Path |
                 Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles.FullName -verbose
         }
-
-
-        $UpdateBranchName = 'pkg-auto-update'
 
         $CommitMessage = @"
 Updated $($RedgatePackageIDs.Count) Redgate packages:
