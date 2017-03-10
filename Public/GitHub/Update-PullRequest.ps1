@@ -30,48 +30,22 @@ Function Update-PullRequest
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $Number,
 
-        # A list of user logins to assign to the pull request.
-        # Set this parameter to an empty list to unassign the pull request.
-        [Parameter(ValueFromPipelineByPropertyName)]
-        [string[]] $Assignees = $null,
-        
-        # A list of labels to assign to the pull request.
-        # Set this parameter to an empty list to remove all labels
-        [Parameter(ValueFromPipelineByPropertyName)]
-        [string[]] $Labels = $null
+        # A hashtable representing the properties to be set on the PR
+        # This must match the format expected by the GitHub REST API
+        # eg @{ assignees = ['YoMomma'], labels = ["so-fat"] }
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [Hashtable] $Payload
     )
     Process
     {
-        if($Labels -eq $null -and $Assignees -eq $null){
-            return
-        }
-
-        $AssigneesJson = JsonifyList -List $Assignees;
-        $LabelsJson = JsonifyList -List $Labels;
+        $PayloadJson = $Payload | ConvertTo-Json
 
         return Invoke-RestMethod `
                 -Uri "https://api.github.com/repos/red-gate/$Repo/issues/$Number" `
                 -Headers @{Authorization="token $Token"} `
                 -Method Patch `
-                -Body @"
-{
-    "assignees": $AssigneesJson,
-    "labels": $LabelsJson
-}
-"@
+                -Body $PayloadJson
     }
 }
 
-function JsonifyList($List){
-    if($List -eq $null){
-        return "null";
-    }
 
-    $json =switch($List.count) {
-        0 { '[]' }
-        1 { "[`"$List`"]"}
-        default { $List | ConvertTo-Json }
-    }
-
-    return $json;
-}

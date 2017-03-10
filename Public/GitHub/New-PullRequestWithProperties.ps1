@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Create a new pull request / update an existing pull request with a list of assigness
+    Create a new pull request / update an existing pull request with a list of assigness or labels
 
 .DESCRIPTION
     If a pull request is not opened yet, create a new one and assign it to a list of github users
@@ -9,7 +9,7 @@
 .OUTPUTS
     A Pull Request object as per https://developer.github.com/v3/pulls/#get-a-single-pull-request
 #>
-Function New-PullRequestWithAssignees
+Function New-PullRequestWithProperties
 {
     [CmdletBinding()]
     [OutputType([Nullable])]
@@ -69,17 +69,38 @@ Function New-PullRequestWithAssignees
         Write-Verbose "PR already exists: $($PullRequest.html_url)"
     }
 
-    Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees with Labels $Labels"
 
-    $PullRequest = Update-PullRequest `
-        -Token $Token `
-        -Repo $Repo `
-        -Number $PullRequest.number `
-        -Assignees $Assignees `
-        -Labels $Labels
+    $Payload = CreatePRUpdatePayload -Assignees $Assignees -Labels $Labels
+    if($Payload -ne $null){
+        Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees with Labels $Labels"
+        
+        $PullRequest = Update-PullRequest `
+            -Token $Token `
+            -Repo $Repo `
+            -Number $PullRequest.number `
+            -Payload $Payload
 
-    Write-Verbose "PR $($PullRequest.id) assigned to $Assignees"
+        Write-Verbose "PR $($PullRequest.id) assigned to $Assignees with Labels $Labels"
+    }
 
     #return the PR object for consumers to use.
     $PullRequest
+}
+
+function CreatePRUpdatePayload($Assignees, $Labels){
+    if($Labels -eq $null -and $Assignees -eq $null){
+        return $null;
+    }
+
+    $Payload = @{};
+
+    if($Assignees -ne $null){
+        $Payload.assignees = $Assignees;
+    }
+
+    if($Labels -ne $null){
+        $Payload.labels = $Labels;
+    }
+
+    return $Payload;
 }

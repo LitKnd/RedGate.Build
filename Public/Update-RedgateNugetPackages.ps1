@@ -84,7 +84,7 @@ $($RedgatePackageIDs -join "`n")
 "@
 
         if(Push-GitChangesToBranch -BranchName $UpdateBranchName -CommitMessage $CommitMessage) {
-            $PR = New-PullRequestWithAssignees `
+            $PR = New-PullRequestWithProperties `
                 -Token $GithubAPIToken `
                 -Repo $Repo `
                 -Head $UpdateBranchName `
