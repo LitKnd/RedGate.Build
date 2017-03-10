@@ -70,9 +70,9 @@ Function Update-RedgateNugetPackages
         UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
 
         if($NuspecFiles) {
-            Resolve-Path $NuspecFiles | ForEach-Object{
-                Update-NuspecDependenciesVersions -NuspecFilePath $_ -PackagesConfigPaths $packageConfigFiles -verbose
-            }
+            Resolve-Path $NuspecFiles |
+                Select-Object -ExpandProperty Path |
+                Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles.FullName -verbose
         }
 
 
