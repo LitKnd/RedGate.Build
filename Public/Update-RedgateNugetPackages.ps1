@@ -90,6 +90,7 @@ Function Update-RedgateNugetPackages
 
         if($DoNotCommitChanges.IsPresent) {
             Write-Warning "-DoNotCommitChanges was passed in, skip committing changes."
+            return
         }
 
         $CommitMessage = @"
