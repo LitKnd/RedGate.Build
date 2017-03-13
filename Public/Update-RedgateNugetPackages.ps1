@@ -56,7 +56,11 @@ Function Update-RedgateNugetPackages
         # (Optional) A list of nuspec files for which we will update
         # the //metadata/dependencies version ranges.
         # Wildcards are supported
-        [string[]] $NuspecFiles
+        [string[]] $NuspecFiles,
+
+        # (Optional) If set, do not commit/push changes to GitHub and
+        # do not create a pull request.
+        [switch] $DoNotCommitChanges
     )
     begin {
         Push-Location $RootDir
@@ -82,6 +86,10 @@ Function Update-RedgateNugetPackages
             Resolve-Path $NuspecFiles |
                 Select-Object -ExpandProperty Path |
                 Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles.FullName -verbose
+        }
+
+        if($DoNotCommitChanges.IsPresent) {
+            return "Skip committing changes."
         }
 
         $CommitMessage = @"
