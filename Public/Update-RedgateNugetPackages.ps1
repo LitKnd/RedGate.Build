@@ -15,7 +15,7 @@ Function Update-RedgateNugetPackages
         # Name of the repo the pull request belong to
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string] $Repo,
-        
+
         # (Optional) The title of the PR created in GitHub
         [string] $PRTitle = "Redgate Nuget Package Auto-Update",
 
@@ -66,6 +66,10 @@ Function Update-RedgateNugetPackages
     Process
     {
         $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
+
+        if(!$ExcludedPackages) { $ExcludedPackages = @() }
+        # temporarily excluded package. 2.0 to 2.1 changes behavior.
+        $ExcludedPackages += 'RedGate.Client.ActivationPluginShim'
 
         $RedgatePackageIDs = GetNugetPackageIds `
             -PackageConfigs $packageConfigFiles `
