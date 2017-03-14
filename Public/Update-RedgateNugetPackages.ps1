@@ -59,8 +59,8 @@ Function Update-RedgateNugetPackages
         [string[]] $NuspecFiles,
 
         # (Optional) If set, do not commit/push changes to GitHub and
-        # do not create a pull request. Defaults to $true
-        [bool] $DoNotCommitChanges = $true
+        # do not create a pull request. Defaults to $false ie commit the changes
+        [bool] $DoNotCommitChanges = $false
     )
     begin {
         Push-Location $RootDir
