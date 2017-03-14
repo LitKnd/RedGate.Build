@@ -71,6 +71,9 @@ Function New-PullRequestWithProperties
 
 
     $Payload = CreatePRUpdatePayload -Assignees $Assignees -Labels $Labels
+    $Payload.title = $Title
+    $Payload.body = $Body
+    
     if($Payload -ne $null){
         Write-Verbose "Assigning PR $($PullRequest.id) to $Assignees with Labels $Labels"
         
