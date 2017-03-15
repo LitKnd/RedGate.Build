@@ -59,7 +59,7 @@ Function Update-RedgateNugetPackages
         # (Optional) A list of nuspec files for which we will update
         # the //metadata/dependencies version ranges.
         # Wildcards are supported
-        [string[]] $NuspecFiles,
+        [string[]] $NuspecFiles
     )
     begin {
         Push-Location $RootDir
