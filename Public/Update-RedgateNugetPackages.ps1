@@ -22,8 +22,11 @@ Function Update-RedgateNugetPackages
         # The name of the branch that will be pushed with any changes
         [string] $UpdateBranchName = 'pkg-auto-update',
 
-        # github api access token with full repo permissions
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        # (Ooptional) github api access token with full repo permissions
+        # If passed in, changes will be committed, pushed to github and a
+        #               pull request will be created/updated.
+        # If not set, changes will not be committed. No pull request will be created
+        [Parameter(ValueFromPipelineByPropertyName)]
         $GithubAPIToken,
 
         # The root directory of the solution
@@ -57,10 +60,6 @@ Function Update-RedgateNugetPackages
         # the //metadata/dependencies version ranges.
         # Wildcards are supported
         [string[]] $NuspecFiles,
-
-        # (Optional) If set, do not commit/push changes to GitHub and
-        # do not create a pull request. Defaults to $false ie commit the changes
-        [bool] $DoNotCommitChanges = $false
     )
     begin {
         Push-Location $RootDir
@@ -88,8 +87,8 @@ Function Update-RedgateNugetPackages
                 Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles.FullName -verbose
         }
 
-        if($DoNotCommitChanges.IsPresent) {
-            Write-Warning "-DoNotCommitChanges was passed in, skip committing changes."
+        if(!$GithubAPIToken) {
+            Write-Warning "-GithubAPIToken was not passed in, skip committing changes."
             return
         }
 
