@@ -22,7 +22,7 @@ Function Update-RedgateNugetPackages
         # The name of the branch that will be pushed with any changes
         [string] $UpdateBranchName = 'pkg-auto-update',
 
-        # (Ooptional) github api access token with full repo permissions
+        # (Optional) github api access token with full repo permissions
         # If passed in, changes will be committed, pushed to github and a
         #               pull request will be created/updated.
         # If not set, changes will not be committed. No pull request will be created
