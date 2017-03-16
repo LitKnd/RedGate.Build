@@ -92,7 +92,7 @@ Function New-PullRequestWithProperties
 
 function CreatePRUpdatePayload($Assignees, $Labels){
     if($Labels -eq $null -and $Assignees -eq $null){
-        return $null;
+        return @{};
     }
 
     $Payload = @{};
