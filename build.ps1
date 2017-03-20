@@ -98,15 +98,13 @@ try {
   }
 
   # Download NuGet if necessary.
-  Write-Info 'Checking NuGet is up to date'
-  $NuGetVersion = '3.5.0'
   $NuGetPath = '.\Private\nuget.exe'
-  if(-not (Test-Path $NuGetPath) -or (Get-Item $NuGetPath).VersionInfo.ProductVersion -ne $NuGetVersion) {
-    $NuGetUrl = "https://dist.nuget.org/win-x86-commandline/v$NuGetVersion/nuget.exe"
+  if(-not (Test-Path $NuGetPath)) {
+    $NuGetUrl = "https://dist.nuget.org/win-x86-commandline/v3.5.0/nuget.exe"
     Write-Host "Downloading $nugetUrl to $NuGetPath"
     Invoke-WebRequest $NuGetUrl -OutFile $NuGetPath
   } else {
-    Write-Host "$NuGetPath is present and is the correct version ($NuGetVersion)"
+    Write-Host "$NuGetPath is present and is version $((Get-Item $NuGetPath).VersionInfo.ProductVersion)"
   }
 
   # Package the RedGate.Build module.
