@@ -59,7 +59,11 @@ Function Update-RedgateNugetPackages
         # (Optional) A list of nuspec files for which we will update
         # the //metadata/dependencies version ranges.
         # Wildcards are supported
-        [string[]] $NuspecFiles
+        [string[]] $NuspecFiles,
+        
+        # (Optional) A dictionary of package names to versions
+        # where the version should be pinned
+        $NuspecPackageVersionOverride = @{}
     )
     begin {
         Push-Location $RootDir
@@ -84,7 +88,10 @@ Function Update-RedgateNugetPackages
         if($NuspecFiles) {
             Resolve-Path $NuspecFiles |
                 Select-Object -ExpandProperty Path |
-                Update-NuspecDependenciesVersions -PackagesConfigPaths $packageConfigFiles.FullName -verbose
+                Update-NuspecDependenciesVersions `
+                    -PackagesConfigPaths $packageConfigFiles.FullName `
+                    -PackageVersionOverride $NuspecPackageVersionOverride `
+                    -Verbose
         }
 
         if(!$GithubAPIToken) {
