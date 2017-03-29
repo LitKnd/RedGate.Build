@@ -17,7 +17,10 @@ function Update-NuspecDependenciesVersions {
         [string[]] $PackagesConfigPaths,
 
         # A hashtable of package id/versions we DO want to override in the nuspec.
-        [Hashtable] $PackageVersionOverride
+        [Hashtable] $PackageVersionOverride,
+
+        # A list of names of packages whose versions should not be changed.
+        [string[]] $doNotUpdate
     )
 
     begin {
@@ -54,9 +57,9 @@ function Update-NuspecDependenciesVersions {
 
         $nuspec = [xml] (Get-Content $NuspecFilePath)
         # Update dependencies in groups
-        $nuspec.package.metadata.dependencies.group.dependency | Update-Dependency -NugetPackages $nugetPackages
+        $nuspec.package.metadata.dependencies.group.dependency | Update-Dependency -NugetPackages $nugetPackages -DoNotUpdate $doNotUpdate
         # Update dependencies outside of groups
-        $nuspec.package.metadata.dependencies.dependency | Update-Dependency -NugetPackages $nugetPackages
+        $nuspec.package.metadata.dependencies.dependency | Update-Dependency -NugetPackages $nugetPackages -DoNotUpdate $doNotUpdate
 
         $nuspec.Save($NuspecFilePath)
         Write-Verbose "Processed $NuspecFilePath"
@@ -70,13 +73,17 @@ function Update-Dependency() {
         [Parameter(Mandatory = $False, Position = 0, ValueFromPipeLine = $True)]
         $InputObject,
         [Parameter(Mandatory = $True, Position = 1)]
-        $NugetPackages
+        $NugetPackages,
+        # A list of names of packages whose versions should not be changed.
+        [string[]] $doNotUpdate = $()
+
     )
 
     process {
         if($InputObject -eq $null) { return }
 
         $baseId = $InputObject.id -replace '.obfuscated', ''
+        if($doNotUpdate -contains $baseId) { return }
 
         # Update the version of the dependency with the one from $nugetPackages
         $version = $NugetPackages | where Id -eq $baseId | select -ExpandProperty Version
