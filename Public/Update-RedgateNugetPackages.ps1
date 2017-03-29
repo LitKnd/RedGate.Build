@@ -63,7 +63,8 @@ Function Update-RedgateNugetPackages
         
         # (Optional) A dictionary of package names to versions
         # where the version should be pinned
-        $NuspecPackageVersionOverride = @{}
+        # For example: { NUnit = '2.6.4'; log4net = '2.0.8' }
+        [Hashtable] $NuspecPackageVersionOverride = @{}
     )
     begin {
         Push-Location $RootDir
