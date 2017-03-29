@@ -59,12 +59,7 @@ Function Update-RedgateNugetPackages
         # (Optional) A list of nuspec files for which we will update
         # the //metadata/dependencies version ranges.
         # Wildcards are supported
-        [string[]] $NuspecFiles,
-        
-        # (Optional) A dictionary of package names to versions
-        # where the version should be pinned
-        # For example: { NUnit = '2.6.4'; log4net = '2.0.8' }
-        [Hashtable] $NuspecPackageVersionOverride = @{}
+        [string[]] $NuspecFiles
     )
     begin {
         Push-Location $RootDir
@@ -91,7 +86,7 @@ Function Update-RedgateNugetPackages
                 Select-Object -ExpandProperty Path |
                 Update-NuspecDependenciesVersions `
                     -PackagesConfigPaths $packageConfigFiles.FullName `
-                    -PackageVersionOverride $NuspecPackageVersionOverride `
+                    -DoNotUpdate $ExcludedPackages `
                     -Verbose
         }
 
