@@ -79,7 +79,9 @@ Function Update-RedgateNugetPackages
             -IncludedPackages $IncludedPackages `
             -ExcludedPackages $ExcludedPackages
 
-        UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution
+        $UpdatedPackages = @()
+        
+        UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution | % { if ($_ -match "Successfully installed '([\w\.]*)") { $UpdatedPackages += $Matches[1] } $_ } | Write-Verbose
 
         if($NuspecFiles) {
             Resolve-Path $NuspecFiles |
@@ -89,6 +91,9 @@ Function Update-RedgateNugetPackages
                     -DoNotUpdate $ExcludedPackages `
                     -Verbose
         }
+        
+        $UpdatedPackages = $UpdatedPackages | Select -Unique
+        Write-Output $UpdatedPackages
 
         if(!$GithubAPIToken) {
             Write-Warning "-GithubAPIToken was not passed in, skip committing changes."
@@ -96,14 +101,14 @@ Function Update-RedgateNugetPackages
         }
 
         $CommitMessage = @"
-Updated $($RedgatePackageIDs.Count) Redgate packages:
-$($RedgatePackageIDs -join "`n")
+Updated $($UpdatedPackages.Count) Redgate packages:
+$($UpdatedPackages -join "`n")
 "@
 
         $PRBody = @"
-The following packages were updated (or are already up to date):
+The following packages were updated:
 `````````
-$($RedgatePackageIDs -join "`n")
+$($UpdatedPackages -join "`n")
 `````````
 This PR was generated automatically.
 
