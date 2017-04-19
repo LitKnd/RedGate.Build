@@ -29,4 +29,8 @@ Describe 'Get-DependencyVersionRange' {
     It 'should handle a 3 part number version with suffix' {
         Get-DependencyVersionRange '1.2.3-suffix' -verbose | Should Be '[1.2.3-suffix, 2.0.0-suffix)'
     }
+
+    It 'should handle a 3 part version with suffix where the suffix contains a dash' {
+        Get-DependencyVersionRange '1.2.3-suffix-b' -verbose | Should Be '[1.2.3-suffix-b, 2.0.0-suffix-b)'
+    }
 }
