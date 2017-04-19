@@ -128,7 +128,7 @@ This PR was generated automatically.
                 -Title $PRTitle `
                 -Body $PRBody
 
-            "Pull request is available at: $($PR.html_url)"
+            Write-Verbose "Pull request is available at: $($PR.html_url)"
         }
     }
     end {
