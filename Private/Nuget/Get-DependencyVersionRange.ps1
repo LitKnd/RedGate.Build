@@ -19,8 +19,8 @@ function Get-DependencyVersionRange
 
     if($Version.Contains('-'))
     {
-        $currentVersion = $Version.Split('-')[0]
-        $branchSuffix = "-$($Version.Split('-')[1])"
+        $currentVersion = $Version.Split('-', 2)[0]
+        $branchSuffix = "-$($Version.Split('-', 2)[1])"
     } else
     {
         $currentVersion = $Version
