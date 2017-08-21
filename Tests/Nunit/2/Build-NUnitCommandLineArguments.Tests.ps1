@@ -7,7 +7,7 @@ $FullPathToModuleRoot = Resolve-Path $PSScriptRoot\..\..\..
 Describe 'Build-NUnitCommandLineArguments' {
 
     function Nunit2Parameters($assembly, $TestResult = 'TestResult') {
-        "$assembly /result=`"$assembly.$TestResult.xml`" /nologo /nodots /noshadow /labels /out:`"$assembly.$TestResult.TestOutput.txt`" /err:`"$assembly.$TestResult.TestError.txt`""
+        "$assembly /xml=`"$assembly.$TestResult.xml`" /nologo /nodots /noshadow /labels /out:`"$assembly.$TestResult.TestOutput.txt`" /err:`"$assembly.$TestResult.TestError.txt`""
     }
 
     Context 'With minimum arguments' {
