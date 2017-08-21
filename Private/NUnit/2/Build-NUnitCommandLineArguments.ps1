@@ -10,7 +10,7 @@ function Build-NUnitCommandLineArguments {
     )
 
     $params = $AssemblyPath,
-        "/result=`"$AssemblyPath.$TestResultFilenamePattern.xml`"",
+        "/xml=`"$AssemblyPath.$TestResultFilenamePattern.xml`"",
         '/nologo',
         '/nodots',
         '/noshadow',
