@@ -25,7 +25,7 @@ function Test-NugetPackage
     )
 
     try {
-        $PackagePath = Install-Package -Name $Name -Version $Version -ErrorAction SilentlyContinue
+        $PackagePath = Install-Package -Name $Name -Version $Version -Silent
         return $PackagePath -ne $Null
     } catch {
         return $False
