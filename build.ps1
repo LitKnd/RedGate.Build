@@ -100,7 +100,7 @@ try {
   # Download NuGet if necessary.
   $NuGetPath = '.\Private\nuget.exe'
   if(-not (Test-Path $NuGetPath)) {
-    $NuGetUrl = "https://dist.nuget.org/win-x86-commandline/v3.5.0/nuget.exe"
+    $NuGetUrl = "https://dist.nuget.org/win-x86-commandline/v4.3.0/nuget.exe"
     Write-Host "Downloading $nugetUrl to $NuGetPath"
     Invoke-WebRequest $NuGetUrl -OutFile $NuGetPath
   } else {
