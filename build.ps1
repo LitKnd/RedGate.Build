@@ -21,13 +21,13 @@
 [CmdletBinding()]
 param(
   [Parameter(Mandatory = $False)]
-  [string] $Version = '0.0.1-dev',
+  [string] $Version = '0.0.1',
 
   [Parameter(Mandatory = $False)]
   [bool] $IsDefaultBranch = $False,
 
   [Parameter(Mandatory = $False)]
-  [string] $BranchName,
+  [string] $BranchName = 'dev',
 
   [Parameter(Mandatory = $False)]
   [string] $NugetFeedToPublishTo,
