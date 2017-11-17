@@ -88,10 +88,10 @@ function Invoke-NUnit3ForAssembly {
     }
 
   } finally {
-      Publish-ResultsAndLogsToTeamcity `
+      Publish-ResultsAndLogs `
         -AssemblyPath $AssemblyPath `
         -TestResultFilenamePattern $TestResultFilenamePattern `
-        -ImportResultsToTeamcity $false # Do not import results to Teamcity since NUnit 3 used service messages to integrate with Teamcity on its own.
+        -ImportResultsToCIServer $false # Do not import results to Teamcity since NUnit 3 used service messages to integrate with Teamcity on its own.
   }
 
 }

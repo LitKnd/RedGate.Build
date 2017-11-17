@@ -1,13 +1,13 @@
-function Publish-ResultsAndLogsToTeamcity {
+function Publish-ResultsAndLogs {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [String] $AssemblyPath,
         [String] $TestResultFilenamePattern = 'TestResult',
-        [bool] $ImportResultsToTeamcity
+        [bool] $ImportResultsToCIServer
     )
 
-    if($ImportResultsToTeamcity) {
+    if($ImportResultsToCIServer) {
       TeamCity-ImportNUnitReport "$AssemblyPath.$TestResultFilenamePattern.xml"
     }
 
