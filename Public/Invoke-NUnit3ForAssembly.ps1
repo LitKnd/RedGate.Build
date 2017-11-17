@@ -91,7 +91,7 @@ function Invoke-NUnit3ForAssembly {
       Publish-ResultsAndLogsToTeamcity `
         -AssemblyPath $AssemblyPath `
         -TestResultFilenamePattern $TestResultFilenamePattern `
-        -ImportResultsToTeamcity $false # Do not import results to Teamcity since we are already executing nunit with the --teamcity switch
+        -ImportResultsToTeamcity $false # Do not import results to Teamcity since NUnit 3 used service messages to integrate with Teamcity on its own.
   }
 
 }
