@@ -10,6 +10,13 @@ Describe 'Write-VSTSLoggingCommand' {
         Write-VSTSLoggingCommand 'area.action' 'message' | Should Be '##vso[area.action ]message'
     }
 
+    It 'should pass -Properties properly' {
+        Write-VSTSLoggingCommand 'area.properties' 'this is a message' -Properties @{
+            prop1 = 'value1'
+            prop2 = 'value2'
+        } | Should Be '##vso[area.properties prop2=value2;prop1=value1]this is a message'
+    }
+
     # Cleanup the alias we created for the tests
     Remove-Item alias:\Write-Host -Force
 }
