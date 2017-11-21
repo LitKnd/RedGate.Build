@@ -9,11 +9,13 @@ function Get-CIServer {
 function Write-CIBuildNumber([string]$buildNumber) {
     & "Write-$(Get-CIServer)BuildNumber" $buildNumber
 }
+Set-Alias CI-BuildNumber Write-CIBuildNumber
 
 function Write-CIImportNUnitReport([Parameter(ValueFromPipeline)][string]$path) {
     process {
         & "Write-$(Get-CIServer)ImportNUnitReport" $path
     }
 }
+Set-Alias CI-ImportNUnitReport Write-CIImportNUnitReport
 
 Export-ModuleMember -Function * -Alias *
