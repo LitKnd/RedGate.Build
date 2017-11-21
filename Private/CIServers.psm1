@@ -7,9 +7,17 @@ if($env:TEAMCITY_VERSION) {
     $CIServer = 'Unknown'
 }
 
-. $PSScriptRoot\CIServers\teamcity.ps1 -Force
-. $PSScriptRoot\CIServers\vsts.ps1 -Force
+Import-Module $PSScriptRoot\CIServers\teamcity.psm1 -Force
+Import-Module $PSScriptRoot\CIServers\vsts.psm1 -Force
 
 
+function Write-CIBuildNumber([string]$buildNumber) {
+    switch ($CIServer)
+    {
+        'Teamcity' { Write-TeamCityBuildNumber $buildNumber }
+        'VSTS' { Write-VSTSBuildNumber $buildNumber }
+        Default { $buildNumber }
+    }
+}
 
 Export-ModuleMember -Function * -Alias * -Variable CIServer

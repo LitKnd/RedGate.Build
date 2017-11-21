@@ -242,4 +242,4 @@ function Write-TeamCityServiceMessage([string]$messageName, $messageAttributesHa
 }
 Set-Alias TeamCity-WriteServiceMessage Write-TeamCityServiceMessage
 
-Export-ModuleMember -Function *
+Export-ModuleMember -Function * -Alias *

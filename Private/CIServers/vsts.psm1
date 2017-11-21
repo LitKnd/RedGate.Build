@@ -1,3 +1,6 @@
+function Write-VSTSBuildNumber([string] $buildNumber) {
+    Write-VSTSLoggingCommand 'build.updatebuildnumber' $buildNumber
+}
 
 function Write-VSTSLoggingCommand([string]$Name, [string]$Message, [hashtable]$Properties) {
     if($Properties) {
@@ -8,4 +11,4 @@ function Write-VSTSLoggingCommand([string]$Name, [string]$Message, [hashtable]$P
     Write-Host "##vso[$Name $propertiesString]$Message" -Fore Magenta
 }
 
-Export-ModuleMember -Function *
+Export-ModuleMember -Function * -Alias *
