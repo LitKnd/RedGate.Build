@@ -1,6 +1,12 @@
 function Write-VSTSBuildNumber([string] $buildNumber) {
     Write-VSTSLoggingCommand 'build.updatebuildnumber' $buildNumber
 }
+function Write-VSTSImportNUnitReport([Parameter(ValueFromPipeline)][string]$path) {
+	process {
+		Write-VSTSLoggingCommand 'results.publish' '' @{ type='NUnit'; resultFiles=$path }
+	}
+}
+Set-Alias VSTS-ImportNUnitReport Write-VSTSImportNUnitReport
 
 function Write-VSTSLoggingCommand([string]$Name, [string]$Message, [hashtable]$Properties) {
     if($Properties) {

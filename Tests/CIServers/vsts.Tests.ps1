@@ -43,3 +43,20 @@ Describe 'Write-VSTSBuildNumber' {
         Write-VSTSBuildNumber '1.2.3.4' | Should Be '##vso[build.updatebuildnumber]1.2.3.4'
     }
 }
+
+Describe 'Write-VSTSImportNUnitReport' {
+    BeforeAll {
+        # Redirect Write-Host to Write-Output so that we can capture it and check it.
+        function global:Redirect-HostToOutput-ForTest { Write-Output $Args[0] }
+        New-Alias -Name Write-Host -Value Redirect-HostToOutput-ForTest -Force -Scope Global
+    }
+
+    AfterAll {
+        # Cleanup the alias we created for the tests
+        Remove-Item alias:\Write-Host -Force
+    }
+
+    It 'should print the right output' {
+        Write-VSTSImportNUnitReport  'C:\folder\myresults.txt' | Should Be '##vso[results.publish type=NUnit;resultFiles=C:\folder\myresults.txt]'
+    }
+}
