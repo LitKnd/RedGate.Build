@@ -10,6 +10,19 @@ function Write-VSTSImportNUnitReport([Parameter(ValueFromPipeline)][string]$path
 }
 Set-Alias VSTS-ImportNUnitReport Write-VSTSImportNUnitReport
 
+function Write-VSTSPublishArtifact([Parameter(ValueFromPipeline)][string]$path) {
+	process {
+        # Not sure how to do it based on https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md
+        # build.uploadlog?
+        # artifact.upload?
+        # artifact.associate?
+        # task.uploadfile?
+        # task.addattachment?
+		Write-Warning "Publishing Artifacts for VSTS is not implemented..."
+	}
+}
+Set-Alias VSTS-PublishArtifact Write-VSTSPublishArtifact
+
 function Write-VSTSLoggingCommand([string]$Name, [string]$Message, [hashtable]$Properties) {
     if($Properties) {
         $propertiesString = ($Properties.GetEnumerator() |

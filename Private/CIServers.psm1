@@ -18,4 +18,11 @@ function Write-CIImportNUnitReport([Parameter(ValueFromPipeline)][string]$path) 
 }
 Set-Alias CI-ImportNUnitReport Write-CIImportNUnitReport
 
+function Write-CIPublishArtifact([Parameter(ValueFromPipeline)][string]$path) {
+    process {
+        & "Write-$(Get-CIServer)PublishArtifact" $path
+    }
+}
+Set-Alias CI-PublishArtifact Write-CIPublishArtifact
+
 Export-ModuleMember -Function * -Alias *
