@@ -1,21 +1,13 @@
-
-function Get-CIServer {
-    if($env:TEAMCITY_VERSION) { return 'Teamcity' }
-    if($env:TF_BUILD) { return 'VSTS' }
-    return 'Unknown'
-}
-
 Import-Module $PSScriptRoot\CIServers\teamcity.psm1 -Force
 Import-Module $PSScriptRoot\CIServers\vsts.psm1 -Force
 
+function Get-CIServer {
+    if($env:TF_BUILD) { return 'VSTS' }
+    return 'Teamcity' # Default to Teamcity to match our old behaviour
+}
 
 function Write-CIBuildNumber([string]$buildNumber) {
-    switch (Get-CIServer)
-    {
-        'Teamcity' { Write-TeamCityBuildNumber $buildNumber }
-        'VSTS' { Write-VSTSBuildNumber $buildNumber }
-        Default { $buildNumber }
-    }
+    & "Write-$(Get-CIServer)BuildNumber" $buildNumber
 }
 
 Export-ModuleMember -Function * -Alias *
