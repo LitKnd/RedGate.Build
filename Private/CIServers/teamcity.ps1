@@ -241,3 +241,5 @@ function Write-TeamCityServiceMessage([string]$messageName, $messageAttributesHa
 	Write-Host "##teamcity[$messageName $messageAttributesString]" -Fore Magenta
 }
 Set-Alias TeamCity-WriteServiceMessage Write-TeamCityServiceMessage
+
+Export-ModuleMember -Function *

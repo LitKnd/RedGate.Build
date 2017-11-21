@@ -7,3 +7,5 @@ function Write-VSTSLoggingCommand([string]$Name, [string]$Message, [hashtable]$P
 
     Write-Host "##vso[$Name $propertiesString]$Message" -Fore Magenta
 }
+
+Export-ModuleMember -Function *

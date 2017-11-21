@@ -7,8 +7,8 @@ if($env:TEAMCITY_VERSION) {
     $CIServer = 'Unknown'
 }
 
-. $PSScriptRoot\CIServers\teamcity.ps1
-. $PSScriptRoot\CIServers\vsts.ps1
+. $PSScriptRoot\CIServers\teamcity.ps1 -Force
+. $PSScriptRoot\CIServers\vsts.ps1 -Force
 
 
 

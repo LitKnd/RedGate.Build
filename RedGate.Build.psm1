@@ -3,7 +3,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 
-$ciServersModule = Import-Module $PSScriptRoot\Private\CIServers.psm1 -DisableNameChecking -PassThru
+$ciServersModule = Import-Module $PSScriptRoot\Private\CIServers.psm1 -DisableNameChecking -PassThru -Force
 
 
 Get-ChildItem "$PSScriptRoot\Private\" -Filter *.ps1 -Recurse |
