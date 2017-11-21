@@ -6,9 +6,12 @@ function Write-VSTSLoggingCommand([string]$Name, [string]$Message, [hashtable]$P
     if($Properties) {
         $propertiesString = ($Properties.GetEnumerator() |
             %{ "{0}={1}" -f $_.Key, $_.Value }) -join ';'
+        $propertiesString = ' ' + $propertiesString
+    } else {
+        $propertiesString = ''
     }
 
-    Write-Host "##vso[$Name $propertiesString]$Message" -Fore Magenta
+    Write-Host "##vso[$Name$propertiesString]$Message" -Fore Magenta
 }
 
 Export-ModuleMember -Function * -Alias *
