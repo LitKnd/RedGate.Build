@@ -78,7 +78,7 @@ task Pack GenerateVersionInfo, {
 }
 
 # Synopsis: Run Pester tests.
-task Tests ImportModules, {
+task Tests Pack, {
     $results = Invoke-Pester -Script .\Tests\ -OutputFile .\TestResults.xml -OutputFormat NUnitXml -PassThru
     Resolve-Path .\TestResults.xml | TeamCity-ImportNUnitReport
     assert ($results.FailedCount -eq 0) "$($results.FailedCount) test(s) failed."
@@ -87,10 +87,10 @@ task Tests ImportModules, {
 # Synopsis: Push the nuget package to a nuget feed
 task PublishNugetPackage -If($IsDefaultBranch -and $NugetFeedToPublishTo -and $NugetFeedApiKey) Pack, {
     exec {
-        & $NugetExe push "RedGate.Build.$Version.nupkg" -Source $NugetFeedToPublishTo -ApiKey $NugetFeedApiKey
+        & $NugetExe push "RedGate.Build.$NugetPackageVersion.nupkg" -Source $NugetFeedToPublishTo -ApiKey $NugetFeedApiKey
     }
 }
 
-task Build Clean, Tests, Pack, PublishNugetPackage
+task Build Clean, Tests, PublishNugetPackage
 
 task . Build
