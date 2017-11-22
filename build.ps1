@@ -48,7 +48,7 @@ Write-Verbose "NugetFeedApiKey = ##redacted##"
 # Synopsis: Clean any previous build output.
 task Clean {
     Get-Module Pester, RedGate.Build | Remove-Module -Verbose
-    Get-Item "$PSScriptRoot\Redgate.Build.*.nupkg", "$PSScriptRoot\TestResults.xml" -ErrorAction 0 | Remove-Item -Force -Verbose
+    Get-Item "$PSScriptRoot\Redgate.Build.*.nupkg", "$PSScriptRoot\TestResults.xml", "$PSScriptRoot\.temp" -ErrorAction 0 | Remove-Item -Force -Recurse -Verbose
 }
 
 # Synopsis: Copy nuget.exe where RedGate.Build expects it
