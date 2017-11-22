@@ -70,32 +70,8 @@ try {
 
   # Clean any previous build output.
   Write-Info 'Cleaning any prior build output'
-  $NuGetPackagePath = ".\RedGate.Build.$Version.nupkg"
-  if (Test-Path $NuGetPackagePath) {
-    Write-Host "Deleting $NuGetPackagePath"
-    Remove-Item $NuGetPackagePath
-  }
-  if (Get-Module Pester)
-  {
-    Write-Host 'Removing Pester module'
-    Remove-Module Pester
-  }
-  $PesterPackagePath = '.\Pester'
-  if (Test-Path $PesterPackagePath) {
-    Write-Host "Deleting $PesterPackagePath"
-    Remove-Item $PesterPackagePath -Force -Recurse
-  }
-  $PesterResultsPath = '.\TestResults.xml'
-  if (Test-Path $PesterResultsPath)
-  {
-    Write-Host "Deleting $PesterResultsPath"
-    Remove-Item $PesterResultsPath
-  }
-  if (Get-Module 'RedGate.Build')
-  {
-    Write-Host 'Removing RedGate.Build module'
-    Remove-Module 'RedGate.Build'
-  }
+  Get-Module Pester, RedGate.Build | Remove-Module
+  Get-Item 'Redgate.Build.*.nupkg', 'Pester', 'TestResults.xml' -ErrorAction 0 | Remove-Item -Force -Recurse
 
   # Download NuGet if necessary.
   $NuGetPath = '.\Private\nuget.exe'
@@ -113,7 +89,6 @@ try {
   if($LASTEXITCODE -ne 0) {
     throw "Could not nuget pack RedGate.Build. nuget returned exit code $LASTEXITCODE"
   }
-  $Null = $NuGetPackagePath | Resolve-Path # Further verify that the package was built.
 
   # Obtain Pester.
   Write-Info 'Obtaining Pester'
@@ -141,7 +116,7 @@ try {
   if($IsDefaultBranch -and $NugetFeedToPublishTo -and $NugetFeedApiKey) {
     Write-Host 'Running NuGet publish'
     # Let's only push the packages from master when nuget feed info is passed in...
-    & $NuGetPath push $NuGetPackagePath -Source $NugetFeedToPublishTo -ApiKey $NugetFeedApiKey
+    & $NuGetPath push "RedGate.Build.$Version.nupkg" -Source $NugetFeedToPublishTo -ApiKey $NugetFeedApiKey
   } else {
     Write-Host 'Publish skipped'
   }
