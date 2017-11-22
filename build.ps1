@@ -42,10 +42,6 @@ $ProgressPreference = 'SilentlyContinue' #important for Invoke-WebRequest to per
 
 $NugetExe = Resolve-Path "$PSScriptRoot\packages\NuGet.CommandLine\tools\NuGet.exe"
 
-function Write-Info($Message) {
-    Write-Host "#### $Message ####" -ForegroundColor Yellow
-}
-
 Write-Verbose "Build parameters"
 Write-Verbose "BuildNumber = $BuildNumber"
 Write-Verbose "IsDefaultBranch = $IsDefaultBranch"
