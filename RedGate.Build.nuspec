@@ -9,7 +9,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A Powershell module that can be used in our build scripts.</description>
     <projectUrl>https://github.com/red-gate/RedGate.Build</projectUrl>
-    <copyright>Copyright 2015 Red Gate Software Ltd.</copyright>
+    <releaseNotes>$releaseNotes$</releaseNotes>
+    <copyright>Copyright $year$ Red Gate Software Ltd.</copyright>
     <dependencies />
   </metadata>
   <files>
