@@ -21,7 +21,7 @@
 [CmdletBinding()]
 param(
   [Parameter(Mandatory = $False)]
-  [string] $Version = '0.0.1',
+  [string] $BuildNumber = '0',
 
   [Parameter(Mandatory = $False)]
   [bool] $IsDefaultBranch = $False,
@@ -36,117 +36,67 @@ param(
   [string] $NugetFeedApiKey
 )
 
+$NugetExe = Resolve-Path "$PSScriptRoot\packages\NuGet.CommandLine\tools\NuGet.exe"
 
-$ErrorActionPreference = 'Stop'
-$ProgressPreference = 'SilentlyContinue' #important for Invoke-WebRequest to perform well when executed from Teamcity.
+Write-Verbose "Build parameters"
+Write-Verbose "BuildNumber = $BuildNumber"
+Write-Verbose "IsDefaultBranch = $IsDefaultBranch"
+Write-Verbose "BranchName = $BranchName"
+Write-Verbose "NugetFeedToPublishTo = $NugetFeedToPublishTo"
+Write-Verbose "NugetFeedApiKey = ##redacted##"
 
-function Write-Info($Message) {
-    Write-Host "#### $Message ####" -ForegroundColor Yellow
+# Synopsis: Clean any previous build output.
+task Clean {
+    Get-Module Pester, RedGate.Build | Remove-Module -Verbose
+    Get-Item "$PSScriptRoot\Redgate.Build.*.nupkg", "$PSScriptRoot\TestResults.xml", "$PSScriptRoot\.temp" -ErrorAction 0 | Remove-Item -Force -Recurse -Verbose
 }
 
-Write-Info "Build parameters"
-Write-Host "Version = $Version"
-Write-Host "IsDefaultBranch = $IsDefaultBranch"
-Write-Host "BranchName = $BranchName"
-Write-Host "NugetFeedToPublishTo = $NugetFeedToPublishTo"
-Write-Host "NugetFeedApiKey = ##redacted##"
+# Synopsis: Copy nuget.exe where RedGate.Build expects it
+task CopyNuget {
+    Copy-Item $NugetExe -Destination "$PSScriptRoot\Private" -Force -Verbose
+}
 
-Push-Location $PSScriptRoot
-try {
-  # Import the TeamCity module.
-  Write-Info 'Importing TeamCity module'
-  Import-Module '.\Private\teamcity.psm1' -DisableNameChecking -Force
+# Synopsis: Import modules used by the build
+task ImportModules CopyNuget, {
+    Import-Module $PSScriptRoot\RedGate.Build.psm1 -Force
+    Import-Module $PSScriptRoot\packages\Pester\tools\Pester.psm1 -Force
+}
 
-  if(!$IsDefaultBranch -and $BranchName) {
-    # If we are not building from master, append a pre-release suffix to the package version.
-    $PackageSuffix = $BranchName -replace '[^a-zA-Z0-9\.\-_]', '' # Strip out any unwanted chars.
-    if ($PackageSuffix.Length -gt 20) {
-        $PackageSuffix = $PackageSuffix.Substring(0, 20)
+# Synopsis: Generate the version infos based on the release notes, branch name and build number.
+task GenerateVersionInfo ImportModules, {
+    $script:Notes = Read-ReleaseNotes -ReleaseNotesPath .\RELEASENOTES.md
+    $script:Version = [System.Version] "$($Notes.Version).$BuildNumber"
+    TeamCity-SetBuildNumber $Version
+    $script:NugetPackageVersion = New-NugetPackageVersion -Version $Version -BranchName $BranchName -IsDefaultBranch $IsDefaultBranch
+}
+
+# Synopsis: Create the RedGate.Build nuget package
+task Pack GenerateVersionInfo, {
+
+    $escapedReleaseNotes = $Notes.Content -replace '"','\"'
+
+    exec {
+        & $NugetExe pack $PSScriptRoot\RedGate.Build.nuspec `
+            -NoPackageAnalysis `
+            -Version $NugetPackageVersion `
+            -Properties "releaseNotes=$escapedReleaseNotes;year=$((Get-Date).year)"
     }
-    $Version = "$Version-$PackageSuffix"
-    # And let TeamCity know we've changed the  version number.
-    TeamCity-SetBuildNumber($Version)
-  }
-
-  # Clean any previous build output.
-  Write-Info 'Cleaning any prior build output'
-  $NuGetPackagePath = ".\RedGate.Build.$Version.nupkg"
-  if (Test-Path $NuGetPackagePath) {
-    Write-Host "Deleting $NuGetPackagePath"
-    Remove-Item $NuGetPackagePath
-  }
-  if (Get-Module Pester)
-  {
-    Write-Host 'Removing Pester module'
-    Remove-Module Pester
-  }
-  $PesterPackagePath = '.\Pester'
-  if (Test-Path $PesterPackagePath) {
-    Write-Host "Deleting $PesterPackagePath"
-    Remove-Item $PesterPackagePath -Force -Recurse
-  }
-  $PesterResultsPath = '.\TestResults.xml'
-  if (Test-Path $PesterResultsPath)
-  {
-    Write-Host "Deleting $PesterResultsPath"
-    Remove-Item $PesterResultsPath
-  }
-  if (Get-Module 'RedGate.Build')
-  {
-    Write-Host 'Removing RedGate.Build module'
-    Remove-Module 'RedGate.Build'
-  }
-
-  # Download NuGet if necessary.
-  $NuGetPath = '.\Private\nuget.exe'
-  if(-not (Test-Path $NuGetPath)) {
-    $NuGetUrl = "https://dist.nuget.org/win-x86-commandline/v4.3.0/nuget.exe"
-    Write-Host "Downloading $nugetUrl to $NuGetPath"
-    Invoke-WebRequest $NuGetUrl -OutFile $NuGetPath
-  } else {
-    Write-Host "$NuGetPath is present and is version $((Get-Item $NuGetPath).VersionInfo.ProductVersion)"
-  }
-
-  # Package the RedGate.Build module.
-  Write-Info 'Creating RedGate.Build NuGet package'
-  & $NuGetPath pack .\RedGate.Build.nuspec -NoPackageAnalysis -Version $Version
-  if($LASTEXITCODE -ne 0) {
-    throw "Could not nuget pack RedGate.Build. nuget returned exit code $LASTEXITCODE"
-  }
-  $Null = $NuGetPackagePath | Resolve-Path # Further verify that the package was built.
-
-  # Obtain Pester.
-  Write-Info 'Obtaining Pester'
-  & $NuGetPath install Pester -Version 3.3.11 -OutputDirectory . -ExcludeVersion -PackageSaveMode nuspec
-  Import-Module "$PesterPackagePath\tools\Pester.psm1" | Resolve-Path
-
-  # Import the RedGate.Build module.
-  Write-Info 'Importing the RedGate.Build module'
-  Import-Module .\RedGate.Build.psm1 -Force
-
-  # Run Pester tests.
-  Write-Info 'Running Pester tests'
-  Invoke-Pester -Script .\Tests\ -OutputFile $PesterResultsPath -OutputFormat NUnitXml
-  if (!(Test-Path $PesterResultsPath)) {
-    throw 'Pester tests results file unavailable'
-  }
-  TeamCity-ImportNUnitReport($PesterResultsPath | Resolve-Path)
-  $TestResults = ([xml](Get-Content $PesterResultsPath)).'test-results'
-  if($TestResults.Errors -ne '0' -or $TestResults.Failures -ne '0') {
-    throw 'One or more tests failed.'
-  }
-
-  # Publish the NuGet package.
-  Write-Info 'Publishing RedGate.Build NuGet package'
-  if($IsDefaultBranch -and $NugetFeedToPublishTo -and $NugetFeedApiKey) {
-    Write-Host 'Running NuGet publish'
-    # Let's only push the packages from master when nuget feed info is passed in...
-    & $NuGetPath push $NuGetPackagePath -Source $NugetFeedToPublishTo -ApiKey $NugetFeedApiKey
-  } else {
-    Write-Host 'Publish skipped'
-  }
-
-  Write-Info 'Build completed'
-} finally {
-  Pop-Location
 }
+
+# Synopsis: Run Pester tests.
+task Tests Pack, {
+    $results = Invoke-Pester -Script .\Tests\ -OutputFile .\TestResults.xml -OutputFormat NUnitXml -PassThru
+    Resolve-Path .\TestResults.xml | TeamCity-ImportNUnitReport
+    assert ($results.FailedCount -eq 0) "$($results.FailedCount) test(s) failed."
+}
+
+# Synopsis: Push the nuget package to a nuget feed
+task PublishNugetPackage -If($IsDefaultBranch -and $NugetFeedToPublishTo -and $NugetFeedApiKey) Pack, {
+    exec {
+        & $NugetExe push "RedGate.Build.$NugetPackageVersion.nupkg" -Source $NugetFeedToPublishTo -ApiKey $NugetFeedApiKey
+    }
+}
+
+task Build Clean, Tests, PublishNugetPackage
+
+task . Build

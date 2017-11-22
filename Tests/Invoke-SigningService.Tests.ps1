@@ -17,7 +17,7 @@ Describe 'Invoke-SigningService' {
             $env:SigningServiceUrl = 'https://mysigningservice.example.com'
             $testExeFile | Invoke-SigningService
 
-            Assert-VerifiableMocks
+            Assert-VerifiableMock
         }
 
         It 'should fail if $env:SigningServiceUrl is not set' {
