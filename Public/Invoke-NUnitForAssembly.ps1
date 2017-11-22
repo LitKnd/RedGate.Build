@@ -97,10 +97,10 @@ function Invoke-NUnitForAssembly {
     }
 
   } finally {
-      Publish-ResultsAndLogsToTeamcity `
+      Publish-ResultsAndLogs `
         -AssemblyPath $AssemblyPath `
         -TestResultFilenamePattern $TestResultFilenamePattern `
-        -ImportResultsToTeamcity (!$DotNotImportResultsToTeamcity.IsPresent)
+        -ImportResultsToCIServer (!$DotNotImportResultsToTeamcity.IsPresent)
   }
 
 }
