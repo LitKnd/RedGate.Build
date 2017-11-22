@@ -4,3 +4,4 @@ Pester
 TestResults.xml
 .temp/
 packages/
+/paket.lock
