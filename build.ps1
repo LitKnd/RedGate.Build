@@ -36,10 +36,6 @@ param(
   [string] $NugetFeedApiKey
 )
 
-
-$ErrorActionPreference = 'Stop'
-$ProgressPreference = 'SilentlyContinue' #important for Invoke-WebRequest to perform well when executed from Teamcity.
-
 $NugetExe = Resolve-Path "$PSScriptRoot\packages\NuGet.CommandLine\tools\NuGet.exe"
 
 Write-Verbose "Build parameters"
