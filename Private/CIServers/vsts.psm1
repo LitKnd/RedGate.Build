@@ -34,5 +34,6 @@ function Write-VSTSLoggingCommand([string]$Name, [string]$Message, [hashtable]$P
 
     Write-Host "##vso[$Name$propertiesString]$Message" -Fore Magenta
 }
+Set-Alias VSTS-LoggingCommand Write-VSTSLoggingCommand
 
 Export-ModuleMember -Function * -Alias *
