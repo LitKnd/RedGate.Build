@@ -3,7 +3,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 
-$teamcityModule = Import-Module $PSScriptRoot\Private\teamcity.psm1 -DisableNameChecking -PassThru
+$ciServersModule = Import-Module $PSScriptRoot\Private\CIServers.psm1 -DisableNameChecking -PassThru -Force
 
 
 Get-ChildItem "$PSScriptRoot\Private\" -Filter *.ps1 -Recurse |
@@ -23,8 +23,8 @@ if ($Host.Name -ne "Default Host") {
   Write-Host "RedGate.Build is using its own nuget.exe. Version $((Get-Item $nugetExe).VersionInfo.FileVersion)"
 }
 
-# Export all the functions from the Teamcity module
-Get-Command -Module $teamcityModule -CommandType Function | Export-ModuleMember
+# Export all the functions from the CIServers module
+Get-Command -Module $ciServersModule -CommandType Function | Export-ModuleMember
 
 # Always export all aliases.
 Export-ModuleMember -Alias *
