@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-  Signs a .NET assembly, jar file, VSIX installer or ClickOnce application.
+  Signs a .NET assembly, PowerShell, jar file, VSIX installer or ClickOnce application.
 .DESCRIPTION
-  Signs a .NET assembly, jar file, VSIX installer or ClickOnce application using the Redgate signing service.
+  Signs a .NET assembly, PowerShell, jar file, VSIX installer or ClickOnce application using the Redgate signing service.
 .OUTPUTS
   The FilePath parameter, to enable call chaining.
 .EXAMPLE
@@ -20,7 +20,7 @@ function Invoke-SigningService {
     [CmdletBinding()]
     param(
         # The path of the file to be signed. The file will me updated in place with a corresponding signed version.
-        # The path may reference a .NET assembly (.exe or .dll), a java Jar file, a Visual Studio Installer (.vsix) or a .NET ClickOnce application (.application).
+        # The path may reference a .NET assembly (.exe or .dll), a PowerShell file, a java Jar file, a Visual Studio Installer (.vsix) or a .NET ClickOnce application (.application).
         # This parameter has several aliases (JarPath, VsixPath, ClickOnceApplicationPath and AssemblyPath) to help improve readability of your scripts.
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Alias('JarPath', 'VsixPath', 'ClickOnceApplicationPath', 'AssemblyPath')]
@@ -110,6 +110,11 @@ Use sha1 if targeting VS 2013 and older. Use sha256 if targeting VS 2015+
             '.jar' { $FileType = 'Jar' }
             '.application' { $FileType = 'ClickOnce' }
             '.manifest' { $fileType = 'ClickOnce' }
+            '.ps1' { $fileType = 'PowerShell' }
+            '.ps1xml' { $fileType = 'PowerShell' }
+            '.psc1' { $fileType = 'PowerShell' }
+            '.psd1' { $fileType = 'PowerShell' }
+            '.psm1' { $fileType = 'PowerShell' }
             default { throw "Unsupported file type: $FilePath" }
         }
 
