@@ -1,5 +1,6 @@
 # 0.3
 
+- Add support for Powershell files to `Invoke-SigningService` [#77](https://github.com/red-gate/RedGate.Build/pull/77)
 - Add new helper functions to write integration messages to CI servers other than Teamcity [#74](https://github.com/red-gate/RedGate.Build/pull/74)
     - VSTS
         - `Write-VSTSBuildNumber` (alias: `VSTS-BuildNumber`)
