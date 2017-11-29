@@ -1,7 +1,7 @@
 function Write-VSTSBuildNumber([string] $buildNumber) {
     Write-VSTSLoggingCommand 'build.updatebuildnumber' $buildNumber
 }
-Set-Alias VSTS-BuildNumber Write-VSTSBuildNumber
+Set-Alias VSTS-SetBuildNumber Write-VSTSBuildNumber
 
 function Write-VSTSImportNUnitReport([Parameter(ValueFromPipeline)][string]$path) {
 	process {
