@@ -1,5 +1,6 @@
 # 0.3
 
+- `Invoke-NUnitForAssembly` and `Invoke-NUnit3ForAssembly` can now import test results in both Teamcity and VSTS [#79](https://github.com/red-gate/RedGate.Build/pull/79)
 - Add support for Powershell files to `Invoke-SigningService` [#77](https://github.com/red-gate/RedGate.Build/pull/77)
 - Add new helper functions to write integration messages to CI servers other than Teamcity [#74](https://github.com/red-gate/RedGate.Build/pull/74), [#78](https://github.com/red-gate/RedGate.Build/pull/78)
     - VSTS
