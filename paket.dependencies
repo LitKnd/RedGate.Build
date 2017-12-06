@@ -1,5 +1,5 @@
 source https://nuget.org/api/v2
 
 nuget Nuget.CommandLine ~> 4
-nuget Invoke-Build ~> 3
+nuget Invoke-Build ~> 4
 nuget Pester ~> 4.0.8
