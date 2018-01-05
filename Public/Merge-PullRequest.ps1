@@ -16,7 +16,7 @@ function Merge-PullRequest {
 
     # The owner of the Github repository
     [Parameter(Mandatory=$false)]
-    [string] $owner = "red-gate"
+    [string] $owner = "red-gate",
 
     # The name of the Github repository
     [Parameter(Mandatory=$true)]
