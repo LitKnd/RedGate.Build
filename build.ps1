@@ -91,7 +91,7 @@ task Tests Pack, {
 }
 
 # Synopsis: Push the nuget package to a nuget feed
-task PublishNugetPackage -If($IsDefaultBranch -and $NugetFeedToPublishTo -and $NugetFeedApiKey) Pack, {
+task PublishNugetPackage -If($NugetFeedToPublishTo -and $NugetFeedApiKey) Pack, {
     exec {
         & $NugetExe push "RedGate.Build.$NugetPackageVersion.nupkg" -Source $NugetFeedToPublishTo -ApiKey $NugetFeedApiKey
     }
