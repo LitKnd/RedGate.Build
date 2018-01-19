@@ -44,11 +44,7 @@ function Merge-CoverageReports {
   Write-Verbose "Merging snapshots: `r`n$snapshots`r`n`r`nto $MergedSnapshotPath"
 
   & $DotCoverPath merge /Source="$($snapshots -join ';')" /Output="$MergedSnapshotPath"
-
-  if( $env:TEAMCITY_VERSION -eq $null ) {
-    # Create an HTML report if running outside of Teamcity to help with debugging
-    & $DotCoverPath report /Source="$MergedSnapshotPath" /Output="$CoverageOutputDir\report.html" /reporttype=HTML
-  }
+  & $DotCoverPath report /Source="$MergedSnapshotPath" /Output="$CoverageOutputDir\report.html" /reporttype=HTML
 
   # Let Teamcity know where the current dotcover.exe we are using is
   TeamCity-ConfigureDotNetCoverage -key 'dotcover_home' -value ($DotCoverPath | Split-Path)
