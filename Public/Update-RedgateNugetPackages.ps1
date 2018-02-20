@@ -70,10 +70,6 @@ Function Update-RedgateNugetPackages
     {
         $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
 
-        if(!$ExcludedPackages) { $ExcludedPackages = @() }
-        # temporarily excluded package. 2.0 to 2.1 changes behavior.
-        $ExcludedPackages += 'RedGate.Client.ActivationPluginShim'
-
         $RedgatePackageIDs = GetNugetPackageIds `
             -PackageConfigs $packageConfigFiles `
             -IncludedPackages $IncludedPackages `
