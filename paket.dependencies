@@ -1,3 +1,5 @@
+version 5.141.0 # Force a specific version of Paket to avoid TLS issues when downloading from github
+
 source https://nuget.org/api/v2
 
 nuget Nuget.CommandLine ~> 4

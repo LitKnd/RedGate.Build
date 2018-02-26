@@ -39,24 +39,32 @@ function Merge-PullRequest {
     $base64token = [System.Convert]::ToBase64String([char[]]$GithubApiToken);
     $headers = @{ Authorization="Basic $base64token" };
 
-    $searchUri = "https://api.github.com/search/issues?q=user%3A$owner+repo%3A$repo+type%3Apr+state%3Aopen+label%3Amerge-when-green+head%3A$branch"
-    Write-Host "Searching for matching PRs with $searchUri"
-    $pulls = Invoke-RestMethod -Headers $headers -Uri $searchUri
-    if ($pulls.total_count -lt 1)
-    {
-        Write-Host "No open PRs labeled 'merge-when-green' for branch $branch. Bye!";
-        return;
+    try {
+        $oldSecurityProtocol = [Net.ServicePointManager]::SecurityProtocol
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+        $searchUri = "https://api.github.com/search/issues?q=user%3A$owner+repo%3A$repo+type%3Apr+state%3Aopen+label%3Amerge-when-green+head%3A$branch"
+        Write-Host "Searching for matching PRs with $searchUri"
+        $pulls = Invoke-RestMethod -Headers $headers -Uri $searchUri
+        if ($pulls.total_count -lt 1)
+        {
+            Write-Host "No open PRs labeled 'merge-when-green' for branch $branch. Bye!";
+            return;
+        }
+        $pull = $pulls.items | Select -First 1
+        $pullNumber = $pull.number
+        $pullDetails = Invoke-RestMethod -Headers $headers -Uri https://api.github.com/repos/$owner/$repo/pulls/$pullNumber
+        $pullSha = $pullDetails.head.sha
+        if (!$pullSha.StartsWith($revision, "CurrentCultureIgnoreCase"))
+        {
+            Write-Host "This build [$revision] isn't for the head commit, [$pullSha].  Bye!";
+            return;
+        }
+        Write-Host "Merging #$pullNumber..."
+        $body = @{sha = $pullSha} | ConvertTo-Json
+        Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$owner/$repo/pulls/$pullNumber/merge" -Body $body -Method PUT
     }
-    $pull = $pulls.items | Select -First 1
-    $pullNumber = $pull.number
-    $pullDetails = Invoke-RestMethod -Headers $headers -Uri https://api.github.com/repos/$owner/$repo/pulls/$pullNumber
-    $pullSha = $pullDetails.head.sha
-    if (!$pullSha.StartsWith($revision, "CurrentCultureIgnoreCase"))
-    {
-        Write-Host "This build [$revision] isn't for the head commit, [$pullSha].  Bye!";
-        return;
+    finally {
+        [Net.ServicePointManager]::SecurityProtocol = $oldSecurityProtocol
     }
-    Write-Host "Merging #$pullNumber..."
-    $body = @{sha = $pullSha} | ConvertTo-Json
-    Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$owner/$repo/pulls/$pullNumber/merge" -Body $body -Method PUT
 }
