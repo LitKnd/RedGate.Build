@@ -1,6 +1,6 @@
 #requires -Version 4 -Modules Pester
 
-Describe 'Test-AutoMerge' {
+Describe 'Merge-PullRequest' {
 
     Context 'When there are no PRs to merge' {
 
