@@ -144,7 +144,11 @@ function Write-TeamCityBuildFinish([string]$message) {
 Set-Alias TeamCity-ReportBuildFinish Write-TeamCityBuildFinish
 
 function Write-TeamCityBuildStatus([string]$status, [string]$text='') {
-	Write-TeamCityServiceMessage 'buildStatus' @{ status=$status; text=$text }
+    if($status) {
+        Write-TeamCityServiceMessage 'buildStatus' @{ status=$status; text=$text }
+    } else {
+        Write-TeamCityServiceMessage 'buildStatus' @{ text=$text }
+    }
 }
 Set-Alias TeamCity-ReportBuildStatus Write-TeamCityBuildStatus
 
