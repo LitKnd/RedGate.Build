@@ -7,7 +7,7 @@
 function Install-NUnitPackage {
   [CmdletBinding()]
   param(
-    # The version of the nuget package containing the NUnit executables (NUnit.Runners (v < 3) or NUnit.Console (v >= 3)
+    # The version of the nuget package containing the NUnit executables (NUnit.Runners (v < 3) or NUnit.Console (v >= 3))
     [string] $Version = $DefaultNUnitVersion
   )
     $nunitRunnerPackageName = "NUnit.Console"
