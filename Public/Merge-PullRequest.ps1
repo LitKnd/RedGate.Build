@@ -63,6 +63,9 @@ function Merge-PullRequest {
         Write-Host "Merging #$pullNumber..."
         $body = @{sha = $pullSha} | ConvertTo-Json
         Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$owner/$repo/pulls/$pullNumber/merge" -Body $body -Method PUT
+        
+        Write-Host "Done.  Deleting branch $branch..."
+        Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$owner/$repo/git/refs/heads/$branch" -Method DELETE
     }
     finally {
         [Net.ServicePointManager]::SecurityProtocol = $oldSecurityProtocol
