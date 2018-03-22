@@ -151,6 +151,10 @@ function GetNugetPackageIds(
 
 function UpdatePackageConfigs([string]$RootDir, [string]$Solution, [string[]]$IncludedPackages, [string[]]$ExcludedPackages, [string[]] $NuspecFiles) {
     $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
+    
+    if (-not $packageConfigFiles) {
+        return
+    }
 
     $RedgatePackageIDs = GetNugetPackageIds `
         -PackageConfigs $packageConfigFiles `
