@@ -69,6 +69,8 @@ Function Update-RedgateNugetPackages
     Process
     {
         $UpdatedPackages = UpdatePackageConfigs -RootDir $RootDir -Solution $Solution -IncludedPackages $IncludedPackages -ExcludedPackages $ExcludedPackages -NuspecFiles $NuspecFiles
+        
+        $UpdatedPackages += UpdatePackageReferences -RootDir $RootDir -IncludedPackages $IncludedPackages -ExcludedPackages $ExcludedPackages
 
         if(!$GithubAPIToken) {
             Write-Warning "-GithubAPIToken was not passed in, skip committing changes."
@@ -175,4 +177,49 @@ function UpdatePackageConfigs([string]$RootDir, [string]$Solution, [string[]]$In
     }
     
     $UpdatedPackages | Select -Unique | Write-Output
+}
+
+function UpdatePackageReferences([string]$RootDir, [string[]]$IncludedPackages, [string[]]$ExcludedPackages) {
+    Get-ChildItem $RootDir -Filter *.csproj -Recurse | % { 
+        $file = $_.FullName
+        $packages = @()
+        (Get-Content $_.FullName | % {
+            if ($_  -match "<PackageReference Include=`"(?<PackageName>[\.\w]+)`" Version=`"(?<PackageVersion>[\d\.]+)`"") {
+                $packages = $packages + @(@{ Name = $Matches.PackageName; Version = $Matches.PackageVersion })
+            }
+        })
+        
+        $filteredPackages = @()
+        foreach($pattern in $IncludedPackages) {
+            $filteredPackages += $packages | Where-Object { $_.Name -like $pattern}
+        }
+
+        if($ExcludedPackages) {
+            # Remove excluded packages if any
+            $filteredPackages = $filteredPackages | Where-Object { $ExcludedPackages -notcontains $_.Name }
+        }
+        
+        $updatedPackages = @()
+        if ($filteredPackages) {
+            try {
+                $filteredPackages | % {
+                    $packageName = $_.Name
+                    $oldVersion = $_.Version
+                    
+                    dotnet add "$file" package $packageName | % {
+                        if ($_ -match "PackageReference for package '$packageName' version '(?<Version>[\d\.]+)'") {
+                            $newVersion = $Matches.Version
+                            if ($newVersion -ne $oldVersion) {
+                                $updatedPackages += @("$packageName ($oldVersion -> $newVersion)")
+                            }
+                        }
+                    } | Write-Host
+                }
+            } finally {
+                Pop-Location
+            }
+        
+            $updatedPackages | Select -Unique | Write-Output
+        }
+    }
 }
