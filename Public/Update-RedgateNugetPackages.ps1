@@ -68,28 +68,7 @@ Function Update-RedgateNugetPackages
     }
     Process
     {
-        $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
-
-        $RedgatePackageIDs = GetNugetPackageIds `
-            -PackageConfigs $packageConfigFiles `
-            -IncludedPackages $IncludedPackages `
-            -ExcludedPackages $ExcludedPackages
-
-        $UpdatedPackages = @()
-        
-        UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution | % { if ($_ -match "Successfully installed '([\w\.]*)") { $UpdatedPackages += $Matches[1] } $_ } | Write-Verbose
-
-        if($NuspecFiles) {
-            Resolve-Path $NuspecFiles |
-                Select-Object -ExpandProperty Path |
-                Update-NuspecDependenciesVersions `
-                    -PackagesConfigPaths $packageConfigFiles.FullName `
-                    -DoNotUpdate $ExcludedPackages `
-                    -Verbose
-        }
-        
-        $UpdatedPackages = $UpdatedPackages | Select -Unique
-        Write-Output $UpdatedPackages
+        $UpdatedPackages = UpdatePackageConfigs -RootDir $RootDir -Solution $Solution -IncludedPackages $IncludedPackages -ExcludedPackages $ExcludedPackages -NuspecFiles $NuspecFiles
 
         if(!$GithubAPIToken) {
             Write-Warning "-GithubAPIToken was not passed in, skip committing changes."
@@ -168,4 +147,28 @@ function GetNugetPackageIds(
     }
 
     return $FilteredPackageIDs | Select-Object -Unique | Sort-Object
+}
+
+function UpdatePackageConfigs([string]$RootDir, [string]$Solution, [string[]]$IncludedPackages, [string[]]$ExcludedPackages, [string[]] $NuspecFiles) {
+    $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
+
+    $RedgatePackageIDs = GetNugetPackageIds `
+        -PackageConfigs $packageConfigFiles `
+        -IncludedPackages $IncludedPackages `
+        -ExcludedPackages $ExcludedPackages
+
+    $UpdatedPackages = @()
+    
+    UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution | % { if ($_ -match "Successfully installed '([\w\.]*)") { $UpdatedPackages += $Matches[1] } $_ } | Write-Verbose
+
+    if($NuspecFiles) {
+        Resolve-Path $NuspecFiles |
+            Select-Object -ExpandProperty Path |
+            Update-NuspecDependenciesVersions `
+                -PackagesConfigPaths $packageConfigFiles.FullName `
+                -DoNotUpdate $ExcludedPackages `
+                -Verbose
+    }
+    
+    $UpdatedPackages | Select -Unique | Write-Output
 }
