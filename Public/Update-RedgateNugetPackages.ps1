@@ -68,28 +68,11 @@ Function Update-RedgateNugetPackages
     }
     Process
     {
-        $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
-
-        $RedgatePackageIDs = GetNugetPackageIds `
-            -PackageConfigs $packageConfigFiles `
-            -IncludedPackages $IncludedPackages `
-            -ExcludedPackages $ExcludedPackages
-
-        $UpdatedPackages = @()
+        $UpdatedPackages = UpdatePackageConfigs -RootDir $RootDir -Solution $Solution -IncludedPackages $IncludedPackages -ExcludedPackages $ExcludedPackages -NuspecFiles $NuspecFiles
         
-        UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution | % { if ($_ -match "Successfully installed '([\w\.]*)") { $UpdatedPackages += $Matches[1] } $_ } | Write-Verbose
-
-        if($NuspecFiles) {
-            Resolve-Path $NuspecFiles |
-                Select-Object -ExpandProperty Path |
-                Update-NuspecDependenciesVersions `
-                    -PackagesConfigPaths $packageConfigFiles.FullName `
-                    -DoNotUpdate $ExcludedPackages `
-                    -Verbose
-        }
+        $UpdatedPackages += UpdatePackageReferences -RootDir $RootDir -IncludedPackages $IncludedPackages -ExcludedPackages $ExcludedPackages
         
         $UpdatedPackages = $UpdatedPackages | Select -Unique
-        Write-Output $UpdatedPackages
 
         if(!$GithubAPIToken) {
             Write-Warning "-GithubAPIToken was not passed in, skip committing changes."
@@ -168,4 +151,77 @@ function GetNugetPackageIds(
     }
 
     return $FilteredPackageIDs | Select-Object -Unique | Sort-Object
+}
+
+function UpdatePackageConfigs([string]$RootDir, [string]$Solution, [string[]]$IncludedPackages, [string[]]$ExcludedPackages, [string[]] $NuspecFiles) {
+    $packageConfigFiles = GetNugetPackageConfigs -RootDir $RootDir
+    
+    if (-not $packageConfigFiles) {
+        return
+    }
+
+    $RedgatePackageIDs = GetNugetPackageIds `
+        -PackageConfigs $packageConfigFiles `
+        -IncludedPackages $IncludedPackages `
+        -ExcludedPackages $ExcludedPackages
+
+    $UpdatedPackages = @()
+    
+    UpdateNugetPackages -PackageIds $RedgatePackageIDs -Solution $Solution | % { if ($_ -match "Successfully installed '([\w\.]*)") { $UpdatedPackages += $Matches[1] } $_ } | Write-Verbose
+
+    if($NuspecFiles) {
+        Resolve-Path $NuspecFiles |
+            Select-Object -ExpandProperty Path |
+            Update-NuspecDependenciesVersions `
+                -PackagesConfigPaths $packageConfigFiles.FullName `
+                -DoNotUpdate $ExcludedPackages `
+                -Verbose
+    }
+    
+    $UpdatedPackages | Select -Unique | Write-Output
+}
+
+function UpdatePackageReferences([string]$RootDir, [string[]]$IncludedPackages, [string[]]$ExcludedPackages) {
+    Get-ChildItem $RootDir -Filter *.csproj -Recurse | % { 
+        $file = $_.FullName
+        $packages = @()
+        $xml = [xml](Get-Content $_.FullName)
+
+        (Select-Xml "//PackageReference" $xml).Node | % {
+            $packages = $packages + @(@{ Name = $_.Include; Version = $_.Version })
+        }
+        
+        $filteredPackages = @()
+        foreach($pattern in $IncludedPackages) {
+            $filteredPackages += $packages | Where-Object { $_.Name -like $pattern}
+        }
+
+        if($ExcludedPackages) {
+            # Remove excluded packages if any
+            $filteredPackages = $filteredPackages | Where-Object { $ExcludedPackages -notcontains $_.Name }
+        }
+        
+        $updatedPackages = @()
+        if ($filteredPackages) {
+            try {
+                $filteredPackages | % {
+                    $packageName = $_.Name
+                    $oldVersion = $_.Version
+                    
+                    dotnet add "$file" package $packageName | % {
+                        if ($_ -match "PackageReference for package '$packageName' version '(?<Version>[\d\.]+)'") {
+                            $newVersion = $Matches.Version
+                            if ($newVersion -ne $oldVersion) {
+                                $updatedPackages += @("$packageName ($oldVersion -> $newVersion)")
+                            }
+                        }
+                    } | Write-Host
+                }
+            } finally {
+                Pop-Location
+            }
+        
+            $updatedPackages | Write-Output
+        }
+    } | Select -Unique
 }
