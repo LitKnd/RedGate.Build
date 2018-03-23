@@ -19,7 +19,7 @@ function Use-Tls
         $oldSecurityProtocol = [Net.ServicePointManager]::SecurityProtocol
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         
-        $delegate
+        $delegate.Invoke()
     }
     Finally {
         [System.Net.ServicePointManager]::SecurityProtocol = $oldSecurityProtocol
