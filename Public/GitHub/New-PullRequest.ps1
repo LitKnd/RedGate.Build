@@ -54,7 +54,7 @@ $Data
 "@
 
     Use-Tls {
-    $result = Invoke-RestMethod `
+        $result = Invoke-RestMethod `
             -Uri "https://api.github.com/repos/red-gate/$Repo/pulls" `
             -Headers @{Authorization="token $Token"} `
             -Method Post `
