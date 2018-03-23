@@ -219,7 +219,7 @@ function UpdatePackageReferences([string]$RootDir, [string[]]$IncludedPackages, 
                 Pop-Location
             }
         
-            $updatedPackages | Select -Unique | Write-Output
+            $updatedPackages | Write-Output
         }
-    }
+    } | Select -Unique
 }
