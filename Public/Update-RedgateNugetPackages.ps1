@@ -183,11 +183,11 @@ function UpdatePackageReferences([string]$RootDir, [string[]]$IncludedPackages, 
     Get-ChildItem $RootDir -Filter *.csproj -Recurse | % { 
         $file = $_.FullName
         $packages = @()
-        (Get-Content $_.FullName | % {
-            if ($_  -match "<PackageReference Include=`"(?<PackageName>[\.\w]+)`" Version=`"(?<PackageVersion>[\d\.]+)`"") {
-                $packages = $packages + @(@{ Name = $Matches.PackageName; Version = $Matches.PackageVersion })
-            }
-        })
+        $xml = [xml](Get-Content $_.FullName)
+
+        (Select-Xml "//PackageReference" $xml).Node | % {
+            $packages = $packages + @(@{ Name = $_.Include; Version = $_.Version })
+        }
         
         $filteredPackages = @()
         foreach($pattern in $IncludedPackages) {
