@@ -53,9 +53,13 @@ Creating Pull request with data:
 $Data
 "@
 
-    return Invoke-RestMethod `
+    Use-Tls {
+    $result = Invoke-RestMethod `
             -Uri "https://api.github.com/repos/red-gate/$Repo/pulls" `
             -Headers @{Authorization="token $Token"} `
             -Method Post `
             -Body $Data
+    }
+
+    return $result
 }

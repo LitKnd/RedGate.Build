@@ -40,11 +40,15 @@ Function Update-PullRequest
     {
         $PayloadJson = $Payload | ConvertTo-Json
 
-        return Invoke-RestMethod `
-                -Uri "https://api.github.com/repos/red-gate/$Repo/issues/$Number" `
-                -Headers @{Authorization="token $Token"} `
-                -Method Patch `
-                -Body $PayloadJson
+        Use-Tls {
+            $result = Invoke-RestMethod `
+                    -Uri "https://api.github.com/repos/red-gate/$Repo/issues/$Number" `
+                    -Headers @{Authorization="token $Token"} `
+                    -Method Patch `
+                    -Body $PayloadJson
+        }
+
+        return $result
     }
 }
 
