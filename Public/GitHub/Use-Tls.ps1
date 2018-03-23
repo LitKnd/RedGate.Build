@@ -8,7 +8,7 @@
         A code block (typically involving one or more web requests) to be executed
 #>
 #requires -Version 2
-function New-PullRequest
+function Use-Tls
 {
     [CmdletBinding()]
     param(
@@ -22,6 +22,6 @@ function New-PullRequest
         $delegate
     }
     Finally {
-        [System.Net.ServicePointManager]::SecurityProtocol = $previousProtocols
+        [System.Net.ServicePointManager]::SecurityProtocol = $oldSecurityProtocol
     }
 }
