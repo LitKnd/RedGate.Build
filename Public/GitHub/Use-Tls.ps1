@@ -13,15 +13,15 @@ function Use-Tls
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        $delegate
+        [ScriptBlock] $delegate
     )
-    Try {
+    try {
         $oldSecurityProtocol = [Net.ServicePointManager]::SecurityProtocol
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         
         $delegate.Invoke()
     }
-    Finally {
+    finally {
         [System.Net.ServicePointManager]::SecurityProtocol = $oldSecurityProtocol
     }
 }
