@@ -39,10 +39,7 @@ function Merge-PullRequest {
     $base64token = [System.Convert]::ToBase64String([char[]]$GithubApiToken);
     $headers = @{ Authorization="Basic $base64token" };
 
-    try {
-        $oldSecurityProtocol = [Net.ServicePointManager]::SecurityProtocol
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
+    Use-Tls {
         $searchUri = "https://api.github.com/search/issues?q=user%3A$owner+repo%3A$repo+type%3Apr+state%3Aopen+label%3Amerge-when-green+head%3A$branch"
         Write-Host "Searching for matching PRs with $searchUri"
         $pulls = Invoke-RestMethod -Headers $headers -Uri $searchUri
@@ -66,8 +63,5 @@ function Merge-PullRequest {
         
         Write-Host "Done.  Deleting branch $branch..."
         Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$owner/$repo/git/refs/heads/$branch" -Method DELETE
-    }
-    finally {
-        [Net.ServicePointManager]::SecurityProtocol = $oldSecurityProtocol
     }
 }
