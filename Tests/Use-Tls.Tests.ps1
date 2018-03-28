@@ -4,7 +4,7 @@ Describe 'Use-Tls' {
     Context 'When given a delegate' {
         It 'TLS 1.2 should be enabled' {
             Use-Tls {
-                [Net.ServicePointManager]::SecurityProtocol -band [Net.SecurityProtocolType]::Tls12 | Should -Be [Net.SecurityProtocolType]::Tls12
+                [Net.ServicePointManager]::SecurityProtocol -band [Net.SecurityProtocolType]::Tls12 | Should -Be ([Net.SecurityProtocolType]::Tls12)
             }
         }
     }
