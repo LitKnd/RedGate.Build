@@ -7,6 +7,9 @@ Describe 'Use-Tls' {
                 [Net.ServicePointManager]::SecurityProtocol -band [Net.SecurityProtocolType]::Tls12 | Should -Be ([Net.SecurityProtocolType]::Tls12)
             }
         }
+        It 'Should return whatever the delegate returns' {
+            Use-Tls { return 2; } | Should -Be 2
+        }
     }
     Context 'When given a delegate that throws' {
         It 'should cause the exception to be thrown' {
