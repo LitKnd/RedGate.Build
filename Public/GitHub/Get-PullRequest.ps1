@@ -36,13 +36,13 @@ function Get-PullRequest
             -Uri "https://api.github.com/repos/red-gate/$Repo/pulls?head=red-gate:$Head&base=$Base" `
             -Headers @{Authorization="token $Token"} `
             -Method Get
-    }
 
-    if($prs.length -eq 0)
-    {
-        return $null
-    }
+        if($prs.length -eq 0)
+        {
+            return $null
+        }
     
-    return $prs[0]
+        return $prs[0]
+    }
 }
 
