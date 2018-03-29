@@ -73,6 +73,8 @@ Function Update-RedgateNugetPackages
         $UpdatedPackages += UpdatePackageReferences -RootDir $RootDir -IncludedPackages $IncludedPackages -ExcludedPackages $ExcludedPackages
         
         $UpdatedPackages = $UpdatedPackages | Select -Unique
+        
+        Write-Output $UpdatedPackages
 
         if(!$GithubAPIToken) {
             Write-Warning "-GithubAPIToken was not passed in, skip committing changes."
