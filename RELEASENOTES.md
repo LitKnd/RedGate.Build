@@ -1,3 +1,7 @@
+# 0.4
+
+- `Invoke-SigningService` will now accept a NuGet package. The NuGet package is not directly signed itself. Instead, it is unpacked to a temporary folder, all the assembly dlls in the `lib` sub-folder are signed by the signing service, and then the NuGet package is reassembled. 
+
 # 0.3
 
 - `Invoke-NUnitForAssembly` and `Invoke-NUnit3ForAssembly` can now import test results in both Teamcity and VSTS [#79](https://github.com/red-gate/RedGate.Build/pull/79)

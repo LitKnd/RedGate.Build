@@ -21,9 +21,9 @@ function Invoke-SigningService {
     param(
         # The path of the file to be signed. The file will me updated in place with a corresponding signed version.
         # The path may reference a .NET assembly (.exe or .dll), a PowerShell file, a java Jar file, a Visual Studio Installer (.vsix) or a .NET ClickOnce application (.application).
-        # This parameter has several aliases (JarPath, VsixPath, ClickOnceApplicationPath and AssemblyPath) to help improve readability of your scripts.
+        # This parameter has several aliases (JarPath, VsixPath, ClickOnceApplicationPath, AssemblyPath and NuGetPackagePath) to help improve readability of your scripts.
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
-        [Alias('JarPath', 'VsixPath', 'ClickOnceApplicationPath', 'AssemblyPath')]
+        [Alias('JarPath', 'VsixPath', 'ClickOnceApplicationPath', 'AssemblyPath', 'NuGetPackagePath')]
         [string] $FilePath,
 
         # The url of the signing service. If unspecified, defaults to the $env:SigningServiceUrl environment variable.
@@ -75,7 +75,7 @@ function Invoke-SigningService {
     process {
         # Simple error checking.
         if ([String]::IsNullOrEmpty($SigningServiceUrl)) {
-            throw 'Cannot sign assembly. -SigningServiceUrl was not specified and the SigningServiceUrl environment variable is not set.'
+            throw 'Cannot sign file. -SigningServiceUrl was not specified and the SigningServiceUrl environment variable is not set.'
         }
         if (!(Test-Path $FilePath)) {
             throw "File not found: $FilePath"
@@ -89,7 +89,7 @@ function Invoke-SigningService {
 
         # Determine the file type.
         $FileType = $Null
-        switch ([System.IO.Path]::GetExtension($FilePath)) {
+        switch ([IO.Path]::GetExtension($FilePath)) {
             '.exe' { $FileType = 'Exe' }
             '.msi' {
                 $FileType = 'Exe'
@@ -115,6 +115,17 @@ Use sha1 if targeting VS 2013 and older. Use sha256 if targeting VS 2015+
             '.psc1' { $fileType = 'PowerShell' }
             '.psd1' { $fileType = 'PowerShell' }
             '.psm1' { $fileType = 'PowerShell' }
+            '.nupkg' {
+                Invoke-SigningServiceForNuGetPackage `
+                    -FilePath $FilePath `
+                    -SigningServiceUrl $SigningServiceUrl `
+                    -Certificate $Certificate `
+                    -HashAlgorithm $HashAlgorithm `
+                    -Description $Description `
+                    -MoreInfoUrl $MoreInfoUrl `
+                    -Force:$Force.IsPresent
+                return $FilePath
+            }
             default { throw "Unsupported file type: $FilePath" }
         }
 
@@ -140,6 +151,73 @@ Use sha1 if targeting VS 2013 and older. Use sha256 if targeting VS 2015+
         # TODO: How should we check the response? Need to fail if the signing failed.
 
         return $FilePath
+    }
+}
+
+function Invoke-SigningServiceForNuGetPackage {
+    [CmdletBinding()]
+    param(
+        [string] $FilePath,
+        [string] $SigningServiceUrl,
+        [string] $Certificate,
+        [string] $HashAlgorithm,
+        [string] $Description,
+        [string] $MoreInfoUrl,
+        [switch] $Force
+    )
+    
+    Write-Verbose 'Creating temp working dir'
+    $TempDir = New-TempDir
+    try
+    {
+        # First copy the NuGet package to the temp dir, giving it a .zip extension to please the Expand-Archive cmdlet.
+        Write-Verbose 'Copying NuGet package to the working dir'
+        $ZipFilePath = "$TempDir\package.zip"
+        Copy-Item -Path $FilePath -Destination $ZipFilePath
+    
+        # Next extract the zip file to a folder.
+        Write-Verbose 'Expanding NuGet package contents to the working dir'
+        $ContentsDir = [string] (mkdir "$TempDir\Contents")
+        Expand-Archive -Path $ZipFilePath -DestinationPath $ContentsDir
+
+        # Sign each assembly in the libs sub-folder.
+        Write-Verbose 'Signing assemblies in the lib sub-folder'
+        $LibsDir = "$ContentsDir\lib"
+        if (Test-Path $LibsDir) {
+            Get-ChildItem -Path $LibsDir -File -Recurse -Include '*.dll' |
+            ForEach-Object {
+                Write-Verbose "Signing $($_.FullName.Substring($ContentsDir.Length + 1))"
+                if ($HashAlgorithm) {
+                    $Null = Invoke-SigningService `
+                        -FilePath $_.FullName `
+                        -SigningServiceUrl $SigningServiceUrl `
+                        -Certificate $Certificate `
+                        -HashAlgorithm $HashAlgorithm `
+                        -Description $Description `
+                        -MoreInfoUrl $MoreInfoUrl `
+                        -Force:$Force.IsPresent
+                } else {
+                    $Null = Invoke-SigningService `
+                        -FilePath $_.FullName `
+                        -SigningServiceUrl $SigningServiceUrl `
+                        -Certificate $Certificate `
+                        -Description $Description `
+                        -MoreInfoUrl $MoreInfoUrl `
+                        -Force:$Force.IsPresent
+                }
+            }
+        }
+    
+        # Compress the modified contents back into the zip file.
+        Write-Verbose 'Recompressing NuGet package contents from the working dir'
+        Compress-Archive -Path "$ContentsDir\*" -DestinationPath $ZipFilePath -Force -CompressionLevel Optimal
+
+        # Copy the zip file back over the original NuGet package file.    
+        Copy-Item -Path $ZipFilePath -Destination $FilePath -Force
+    }
+    finally
+    {
+        Remove-Item $TempDir -Recurse -Force
     }
 }
 

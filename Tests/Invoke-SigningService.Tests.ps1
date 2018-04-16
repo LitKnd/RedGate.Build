@@ -23,7 +23,7 @@ Describe 'Invoke-SigningService' {
         It 'should fail if $env:SigningServiceUrl is not set' {
             $env:SigningServiceUrl = $null
             {$testExeFile | Invoke-SigningService} |
-                Should Throw 'Cannot sign assembly. -SigningServiceUrl was not specified and the SigningServiceUrl environment variable is not set.'
+                Should Throw 'Cannot sign file. -SigningServiceUrl was not specified and the SigningServiceUrl environment variable is not set.'
         }
     }
 
