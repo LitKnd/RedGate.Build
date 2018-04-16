@@ -188,7 +188,7 @@ function Invoke-SigningServiceForNuGetPackage {
             ForEach-Object {
                 Write-Verbose "Signing $($_.FullName.Substring($ContentsDir.Length + 1))"
                 if ($HashAlgorithm) {
-                    $Null = Invoke-SigningService `
+                    Invoke-SigningService `
                         -FilePath $_.FullName `
                         -SigningServiceUrl $SigningServiceUrl `
                         -Certificate $Certificate `
@@ -197,7 +197,7 @@ function Invoke-SigningServiceForNuGetPackage {
                         -MoreInfoUrl $MoreInfoUrl `
                         -Force:$Force.IsPresent
                 } else {
-                    $Null = Invoke-SigningService `
+                    Invoke-SigningService `
                         -FilePath $_.FullName `
                         -SigningServiceUrl $SigningServiceUrl `
                         -Certificate $Certificate `
