@@ -74,84 +74,132 @@ function Invoke-SigningService {
 
     process {
         # Simple error checking.
-        if ([String]::IsNullOrEmpty($SigningServiceUrl)) {
+        if ([string]::IsNullOrEmpty($SigningServiceUrl)) {
             throw 'Cannot sign file. -SigningServiceUrl was not specified and the SigningServiceUrl environment variable is not set.'
         }
         if (!(Test-Path $FilePath)) {
             throw "File not found: $FilePath"
         }
 
-        # Only sign the file if it does not already have a valid Authenticode signature
-        if(!$Force.IsPresent -and (Get-AuthenticodeSignature $FilePath).Status -eq 'Valid') {
-            Write-Verbose "Skipping signing $FilePath. It is already signed"
-            return $FilePath
-        }
-
-        # Determine the file type.
-        $FileType = $Null
-        switch ([IO.Path]::GetExtension($FilePath)) {
-            '.exe' { $FileType = 'Exe' }
-            '.msi' {
-                $FileType = 'Exe'
-                #  msi files cannot be double signed at the moment.
-                #  so tell the signing service to use sha256
-                if(!$HashAlgorithm) { $HashAlgorithm = 'sha256' }
-            }
-            '.dll' { $FileType = 'Exe' }
-            '.vsix' {
-                $FileType = 'Vsix'
-                if(!$HashAlgorithm) {
-                    throw @'
-Cannot sign vsix package. -HashAlgorithm was not specified.
-Use sha1 if targeting VS 2013 and older. Use sha256 if targeting VS 2015+
-'@
-                }
-            }
-            '.jar' { $FileType = 'Jar' }
-            '.application' { $FileType = 'ClickOnce' }
-            '.manifest' { $fileType = 'ClickOnce' }
-            '.ps1' { $fileType = 'PowerShell' }
-            '.ps1xml' { $fileType = 'PowerShell' }
-            '.psc1' { $fileType = 'PowerShell' }
-            '.psd1' { $fileType = 'PowerShell' }
-            '.psm1' { $fileType = 'PowerShell' }
-            '.nupkg' {
-                Invoke-SigningServiceForNuGetPackage `
-                    -FilePath $FilePath `
-                    -SigningServiceUrl $SigningServiceUrl `
-                    -Certificate $Certificate `
-                    -HashAlgorithm $HashAlgorithm `
-                    -Description $Description `
-                    -MoreInfoUrl $MoreInfoUrl `
-                    -Force:$Force.IsPresent
-                return $FilePath
-            }
-            default { throw "Unsupported file type: $FilePath" }
-        }
-
-        # Make the web request to the signing service.
-        $Headers = @{};
-        Add-ToHashTableIfNotNull $Headers -Key 'FileType' -Value $FileType
-        Add-ToHashTableIfNotNull $Headers -Key 'Certificate' -Value $Certificate
-        Add-ToHashTableIfNotNull $Headers -Key 'Description' -Value $Description
-        Add-ToHashTableIfNotNull $Headers -Key 'MoreInfoUrl' -Value $MoreInfoUrl
-        Add-ToHashTableIfNotNull $Headers -Key 'HashAlgorithm' -Value $HashAlgorithm
-
-        Write-Verbose "Signing $FilePath using $SigningServiceUrl"
-        $Headers.Keys | ForEach { Write-Verbose "`t $_`: $($Headers[$_])" }
-
-        $Response = Invoke-WebRequest `
-            -Uri $SigningServiceUrl `
-            -InFile $FilePath `
-            -OutFile $FilePath `
-            -Method Post `
-            -ContentType 'binary/octet-stream' `
-            -Headers $Headers
-
-        # TODO: How should we check the response? Need to fail if the signing failed.
+        Invoke-SigningServiceCommon `
+            -FilePath $FilePath `
+            -SigningServiceUrl $SigningServiceUrl `
+            -Certificate $Certificate `
+            -HashAlgorithm $HashAlgorithm `
+            -Description $Description `
+            -MoreInfoUrl $MoreInfoUrl `
+            -Force:$Force.IsPresent
 
         return $FilePath
     }
+}
+
+function Invoke-SigningServiceCommon {
+    [CmdletBinding()]
+    param(
+        [string] $FilePath,
+        [string] $SigningServiceUrl,
+        [string] $Certificate,
+        [string] $HashAlgorithm,
+        [string] $Description,
+        [string] $MoreInfoUrl,
+        [switch] $Force
+    )
+
+    # Only sign the file if it does not already have a valid Authenticode signature
+    if(!$Force.IsPresent -and (Get-AuthenticodeSignature $FilePath).Status -eq 'Valid') {
+        Write-Verbose "Skipping signing $FilePath. It is already signed"
+        return $FilePath
+    }
+
+    # If we have a NuGet package, use the funtion that unpacks its contents and signs the contained assemblies ...
+    if ([IO.Path]::GetExtension($FilePath) -eq '.nupkg') {
+        Invoke-SigningServiceForNuGetPackage `
+            -FilePath $FilePath `
+            -SigningServiceUrl $SigningServiceUrl `
+            -Certificate $Certificate `
+            -HashAlgorithm $HashAlgorithm `
+            -Description $Description `
+            -MoreInfoUrl $MoreInfoUrl `
+            -Force:$Force.IsPresent
+    }
+    
+    # ... otherwise use the function that directly invokes the signing service.
+    else {
+        Invoke-SigningServiceForFile `
+            -FilePath $FilePath `
+            -SigningServiceUrl $SigningServiceUrl `
+            -Certificate $Certificate `
+            -HashAlgorithm $HashAlgorithm `
+            -Description $Description `
+            -MoreInfoUrl $MoreInfoUrl `
+            -Force:$Force.IsPresent
+    }
+}
+
+function Invoke-SigningServiceForFile {
+    [CmdletBinding()]
+    param(
+        [string] $FilePath,
+        [string] $SigningServiceUrl,
+        [string] $Certificate,
+        [string] $HashAlgorithm,
+        [string] $Description,
+        [string] $MoreInfoUrl,
+        [switch] $Force
+    )
+    
+    # Determine the file type.
+    $FileType = $Null
+    switch ([IO.Path]::GetExtension($FilePath)) {
+        '.exe' { $FileType = 'Exe' }
+        '.msi' {
+            $FileType = 'Exe'
+            #  msi files cannot be double signed at the moment.
+            #  so tell the signing service to use sha256
+            if(!$HashAlgorithm) { $HashAlgorithm = 'sha256' }
+        }
+        '.dll' { $FileType = 'Exe' }
+        '.vsix' {
+            $FileType = 'Vsix'
+            if(!$HashAlgorithm) {
+                throw @'
+Cannot sign vsix package. -HashAlgorithm was not specified.
+Use sha1 if targeting VS 2013 and older. Use sha256 if targeting VS 2015+
+'@
+            }
+        }
+        '.jar' { $FileType = 'Jar' }
+        '.application' { $FileType = 'ClickOnce' }
+        '.manifest' { $fileType = 'ClickOnce' }
+        '.ps1' { $fileType = 'PowerShell' }
+        '.ps1xml' { $fileType = 'PowerShell' }
+        '.psc1' { $fileType = 'PowerShell' }
+        '.psd1' { $fileType = 'PowerShell' }
+        '.psm1' { $fileType = 'PowerShell' }
+        default { throw "Unsupported file type: $FilePath" }
+    }
+
+    # Make the web request to the signing service.
+    $Headers = @{};
+    Add-ToHashTableIfNotNull $Headers -Key 'FileType' -Value $FileType
+    Add-ToHashTableIfNotNull $Headers -Key 'Certificate' -Value $Certificate
+    Add-ToHashTableIfNotNull $Headers -Key 'Description' -Value $Description
+    Add-ToHashTableIfNotNull $Headers -Key 'MoreInfoUrl' -Value $MoreInfoUrl
+    Add-ToHashTableIfNotNull $Headers -Key 'HashAlgorithm' -Value $HashAlgorithm
+
+    Write-Verbose "Signing $FilePath using $SigningServiceUrl"
+    $Headers.Keys | ForEach-Object { Write-Verbose "`t $_`: $($Headers[$_])" }
+
+    $Response = Invoke-WebRequest `
+        -Uri $SigningServiceUrl `
+        -InFile $FilePath `
+        -OutFile $FilePath `
+        -Method Post `
+        -ContentType 'binary/octet-stream' `
+        -Headers $Headers
+
+    # TODO: How should we check the response? Need to fail if the signing failed.
 }
 
 function Invoke-SigningServiceForNuGetPackage {
@@ -170,7 +218,7 @@ function Invoke-SigningServiceForNuGetPackage {
     $TempDir = New-TempDir
     try
     {
-        # First copy the NuGet package to the temp dir, giving it a .zip extension to please the Expand-Archive cmdlet.
+        # First copy the NuGet package to the temp dir, giving it a .zip extension (Expand-Archive requires a .zip extension).
         Write-Verbose 'Copying NuGet package to the working dir'
         $ZipFilePath = "$TempDir\package.zip"
         Copy-Item -Path $FilePath -Destination $ZipFilePath
@@ -187,28 +235,18 @@ function Invoke-SigningServiceForNuGetPackage {
             Get-ChildItem -Path $LibsDir -File -Recurse -Include '*.dll' |
             ForEach-Object {
                 Write-Verbose "Signing $($_.FullName.Substring($ContentsDir.Length + 1))"
-                if ($HashAlgorithm) {
-                    Invoke-SigningService `
-                        -FilePath $_.FullName `
-                        -SigningServiceUrl $SigningServiceUrl `
-                        -Certificate $Certificate `
-                        -HashAlgorithm $HashAlgorithm `
-                        -Description $Description `
-                        -MoreInfoUrl $MoreInfoUrl `
-                        -Force:$Force.IsPresent
-                } else {
-                    Invoke-SigningService `
-                        -FilePath $_.FullName `
-                        -SigningServiceUrl $SigningServiceUrl `
-                        -Certificate $Certificate `
-                        -Description $Description `
-                        -MoreInfoUrl $MoreInfoUrl `
-                        -Force:$Force.IsPresent
-                }
+                Invoke-SigningServiceCommon `
+                    -FilePath $_.FullName `
+                    -SigningServiceUrl $SigningServiceUrl `
+                    -Certificate $Certificate `
+                    -HashAlgorithm $HashAlgorithm `
+                    -Description $Description `
+                    -MoreInfoUrl $MoreInfoUrl `
+                    -Force:$Force.IsPresent
             }
         }
     
-        # Compress the modified contents back into the zip file.
+        # Compress the modified contents back into the zip file (Compress-Archive requires a .zip extension).
         Write-Verbose 'Recompressing NuGet package contents from the working dir'
         Compress-Archive -Path "$ContentsDir\*" -DestinationPath $ZipFilePath -Force -CompressionLevel Optimal
 
