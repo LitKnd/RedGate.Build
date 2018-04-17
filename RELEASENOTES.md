@@ -1,3 +1,7 @@
+# 0.5
+
+- New `Update-ProjectProperties` cmdlet that can be used to set various properties of a C# project file, such as Version, AssemblyVersion, FileVersion and PackageReleaseNotes. This provides an alternative to `Update-AssemblyVersion` as we progressively move away from using `AssemblyInfo.cs` files for project properties.
+
 # 0.4
 
 - `Invoke-SigningService` will now accept a NuGet package. The NuGet package is not directly signed itself. Instead, it is unpacked to a temporary folder, all the assembly dlls in the `lib` sub-folder are signed by the signing service, and then the NuGet package is reassembled. 
