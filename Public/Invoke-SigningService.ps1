@@ -112,7 +112,7 @@ function Invoke-SigningServiceCommon {
         return
     }
 
-    # If we have a NuGet package, use the funtion that unpacks its contents and signs the contained assemblies ...
+    # If we have a NuGet package, use the function that unpacks its contents and signs the contained assemblies ...
     if ([IO.Path]::GetExtension($FilePath) -eq '.nupkg') {
         Invoke-SigningServiceForNuGetPackage `
             -FilePath $FilePath `
