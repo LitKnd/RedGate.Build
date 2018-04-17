@@ -179,46 +179,27 @@ Use sha1 if targeting VS 2013 and older. Use sha256 if targeting VS 2015+
         '.psm1' { $fileType = 'PowerShell' }
         default { throw "Unsupported file type: $FilePath" }
     }
-    
-    $TempDir = New-TempDir
-    try {
-        # The output file from the signing service. We don't overwrite the original until the response has been validated.
-        $OutFilePath = "$TempDir\$([IO.Path]::GetFileName($FilePath))"
-        
-        # Make the web request to the signing service.
-        $Headers = @{};
-        Add-ToHashTableIfNotNull $Headers -Key 'FileType' -Value $FileType
-        Add-ToHashTableIfNotNull $Headers -Key 'Certificate' -Value $Certificate
-        Add-ToHashTableIfNotNull $Headers -Key 'Description' -Value $Description
-        Add-ToHashTableIfNotNull $Headers -Key 'MoreInfoUrl' -Value $MoreInfoUrl
-        Add-ToHashTableIfNotNull $Headers -Key 'HashAlgorithm' -Value $HashAlgorithm
 
-        Write-Verbose "Signing $FilePath using $SigningServiceUrl"
-        $Headers.Keys | ForEach-Object { Write-Verbose "`t $_`: $($Headers[$_])" }
+    # Make the web request to the signing service.
+    $Headers = @{};
+    Add-ToHashTableIfNotNull $Headers -Key 'FileType' -Value $FileType
+    Add-ToHashTableIfNotNull $Headers -Key 'Certificate' -Value $Certificate
+    Add-ToHashTableIfNotNull $Headers -Key 'Description' -Value $Description
+    Add-ToHashTableIfNotNull $Headers -Key 'MoreInfoUrl' -Value $MoreInfoUrl
+    Add-ToHashTableIfNotNull $Headers -Key 'HashAlgorithm' -Value $HashAlgorithm
 
-        Invoke-WebRequest `
-            -Uri $SigningServiceUrl `
-            -InFile $FilePath `
-            -OutFile $OutFilePath `
-            -Method Post `
-            -ContentType 'binary/octet-stream' `
-            -Headers $Headers
-        
-        # The signing service guarantees an error response if anything went wrong with signing,
-        # so if we've got here, it's a good sign that the signing request succeeded.
-        # See https://github.com/red-gate/SigningService/blob/master/SigningService/Controllers/HomeController.cs#L29
-        
-        # Sanity check the signature, as it's the only way we can be absolutely sure the signing worked.
-        if ((Get-AuthenticodeSignature $OutFilePath).Status -ne 'Valid') {
-            throw 'Signature validation failed on the file returned by the signing service'
-        }
-        
-        # And finally overwrite the original input file with the signed version.
-        Move-Item -Path $OutFilePath -Destination $FilePath -Force
-    } finally {
-        # Clean up.
-        Remove-Item $TempDir -Recurse -Force
-    }
+    Write-Verbose "Signing $FilePath using $SigningServiceUrl"
+    $Headers.Keys | ForEach-Object { Write-Verbose "`t $_`: $($Headers[$_])" }
+
+    $Response = Invoke-WebRequest `
+        -Uri $SigningServiceUrl `
+        -InFile $FilePath `
+        -OutFile $FilePath `
+        -Method Post `
+        -ContentType 'binary/octet-stream' `
+        -Headers $Headers
+
+    # TODO: How should we check the response? Need to fail if the signing failed.
 }
 
 function Invoke-SigningServiceForNuGetPackage {

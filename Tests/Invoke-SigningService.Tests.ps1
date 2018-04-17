@@ -7,19 +7,15 @@ Describe 'Invoke-SigningService' {
 
     Context '-SigningServiceUrl is not passed in' {
 
+
         It 'should use value of $env:SigningServiceUrl' {
-            Mock Invoke-WebRequest `
+            Mock Invoke-WebRequest {} `
                 -Module RedGate.Build `
                 -Verifiable `
                 -ParameterFilter { $Uri -eq 'https://mysigningservice.example.com' }
 
-            Mock Get-AuthenticodeSignature { return @{Status = 'Valid'} } `
-                -Module RedGate.Build
-
-            Mock Move-Item -Module RedGate.Build
-
             $env:SigningServiceUrl = 'https://mysigningservice.example.com'
-            $testExeFile | Invoke-SigningService -Force
+            $testExeFile | Invoke-SigningService
 
             Assert-VerifiableMock
         }
