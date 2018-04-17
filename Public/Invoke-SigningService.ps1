@@ -81,7 +81,7 @@ function Invoke-SigningService {
             throw "File not found: $FilePath"
         }
 
-        Invoke-SigningServiceCommon `
+        $Null = Invoke-SigningServiceCommon `
             -FilePath $FilePath `
             -SigningServiceUrl $SigningServiceUrl `
             -Certificate $Certificate `
@@ -109,7 +109,7 @@ function Invoke-SigningServiceCommon {
     # Only sign the file if it does not already have a valid Authenticode signature
     if(!$Force.IsPresent -and (Get-AuthenticodeSignature $FilePath).Status -eq 'Valid') {
         Write-Verbose "Skipping signing $FilePath. It is already signed"
-        return $FilePath
+        return
     }
 
     # If we have a NuGet package, use the funtion that unpacks its contents and signs the contained assemblies ...
