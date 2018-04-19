@@ -217,7 +217,8 @@ function UpdatePackageReferences([string]$RootDir, [string[]]$IncludedPackages, 
                                 $updatedPackages += @("$packageName ($oldVersion -> $newVersion)")
                             }
                         }
-                    } | Write-Host
+                        $_
+                    } | Write-Verbose
                 }
             } finally {
                 Pop-Location
