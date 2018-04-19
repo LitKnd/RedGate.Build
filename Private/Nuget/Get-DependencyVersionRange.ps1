@@ -14,7 +14,8 @@ function Get-DependencyVersionRange
     param (
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeLine = $True)]
         [ValidateNotNullOrEmpty()]
-        [string] $Version
+        [string] $Version,
+        [switch] $SpecificVersion
     )
 
     if($Version.Contains('-'))
@@ -28,7 +29,7 @@ function Get-DependencyVersionRange
     }
 
     $versionParts = $currentVersion.Split(".")
-    if ($versionParts.Length -eq 3) #http://wiki/Semantic_Versioning
+    if ($versionParts.Length -eq 3 -And -Not $SpecificVersion) #http://wiki/Semantic_Versioning
     {
         $nextMajorVersion = [int] $versionParts[0] + 1
         $nextMajorVersionString = "$nextMajorVersion.0.0$branchSuffix"
