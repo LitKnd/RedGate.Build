@@ -4,6 +4,9 @@
 
 .DESCRIPTION
   Updates various properties in a VS2017-style project file, including the Version, AssemblyVersion, FileVersion and PackageReleaseNotes.
+  
+  Please note that it may be simpler and more appropriate to inject these properties into msbuild via the command-line, rather than manipulating the project files.
+  This cmdlet is primarily useful if you need to specify different properties across different projects in your solution.
 
 .PARAMETER Path
   The path of the project file to update.
@@ -48,7 +51,7 @@ function Update-ProjectProperties
     }
 
     $ProjectXml = [xml] (Get-Content $Path)
-    $PropertyGroupElement = $ProjectXml.SelectSingleNode('/Project[@Sdk]/PropertyGroup[1]')
+    $PropertyGroupElement = ($ProjectXml | Select-Xml -XPath '/Project[@Sdk]/PropertyGroup[1]').Node
     if ($PropertyGroupElement) {
         Write-Verbose "Updating properties in project file $Path"
         Update-Property $ProjectXml $PropertyGroupElement 'Version' $Version
@@ -75,9 +78,9 @@ function Update-Property
         [string] $PropertyValue
     )
 
-    if (-not [string]::IsNullOrEmpty($PropertyValue)) {
+    if ($PropertyValue) {
         Write-Verbose "  Setting property $PropertyName to $PropertyValue"
-        $PropertyElement = $ParentElement.SelectSingleNode($PropertyName)
+        $PropertyElement = ($ParentElement | Select-Xml -XPath $PropertyName).Node
         if (-not $PropertyElement) {
             $PropertyElement = $XmlDocument.CreateElement($PropertyName)
             $Null = $ParentElement.AppendChild($PropertyElement)
