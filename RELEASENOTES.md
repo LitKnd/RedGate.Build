@@ -1,6 +1,7 @@
 # 0.5
 
 - New `Update-ProjectProperties` cmdlet that can be used to set various properties of a C# project file, such as Version, AssemblyVersion, FileVersion and PackageReleaseNotes. This provides an alternative to `Update-AssemblyVersion` as we progressively move away from using `AssemblyInfo.cs` files for project properties.
+- `Update-NuspecDependenciesVersions` now accepts the `-SpecificVersions` switch. Using the switch will use a specific version rather than a range for dependencies with three-part version numbers.
 
 # 0.4
 
