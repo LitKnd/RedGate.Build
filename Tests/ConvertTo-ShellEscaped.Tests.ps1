@@ -54,6 +54,9 @@ public static string[] ToMainMethodArgsArray(string processArguments)
     It 'should handle multiple input strings' {
         ConvertTo-ShellEscaped @('abc', 'def') | Should Be 'abc def'
     }
+    It 'should handle multiple input strings pipeline' {
+        @('abc', @('def', 'ghi')) | ConvertTo-ShellEscaped | Should Be @('abc', 'def ghi')
+    }
 
     It 'should handle empty string' { Check('') }
     It 'should handle space' { Check('') }

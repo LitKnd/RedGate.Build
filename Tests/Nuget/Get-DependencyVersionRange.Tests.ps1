@@ -37,4 +37,8 @@ Describe 'Get-DependencyVersionRange' {
     It 'should handle a 3 part version when specificversion specified' {
         Get-DependencyVersionRange '1.2.3' -SpecificVersion | Should Be '[1.2.3]'
     }
+
+    It 'should handle pipeline input' {
+        @('1', '1') | Get-DependencyVersionRange | Should Be @('[1]', '[1]')
+    }
 }
