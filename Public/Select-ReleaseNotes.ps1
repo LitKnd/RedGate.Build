@@ -203,10 +203,10 @@ function Select-ReleaseNotes {
         throw 'No $ReleaseNotesPath or $ReleaseNotes specified'
     }
 
-    $VersionRegex = '^#+\s*(?<version>[0-9]+\.[0-9]+(\.[0-9]+)?(\.[0-9]+)?)(\s*-\s*(?<date>.*))?\s*$'
-    $HeaderRegex = '^#+\s*(?<header>.+):?\s*$'
-    $DateRegex = '^#+\s*.*(?<date>\d\d\d\d.\d\d.\d\d)'
-    $StraplineStartRegex = '^#+\s*Strapline\s*$'
+    $VersionRegex = '^\s*#+\s*(?<version>[0-9]+\.[0-9]+(\.[0-9]+)?(\.[0-9]+)?)(\s*-\s*(?<date>.*))?\s*$'
+    $HeaderRegex = '^\s*#+\s*(?<header>.+):?\s*$'
+    $DateRegex = '^\s*#+\s*.*(?<date>\d\d\d\d.\d\d.\d\d)'
+    $StraplineStartRegex = '^\s*#+\s*Strapline\s*$'
     $StraplineRegex = '^\s*(?<priority>[0-9]+)\s*-\s*(?<feature>.*)\s*$'
 
     $Accumulator = @{}
@@ -214,7 +214,6 @@ function Select-ReleaseNotes {
     $Release = $nul
     
     foreach($Line in $Lines) {
-        $Line = $Line.Trim()
         $VersionMatch = [regex]::Match($Line, $VersionRegex)
         if ($VersionMatch.Success) {
             # If a $Release already was being filled in - clean it up and return it
