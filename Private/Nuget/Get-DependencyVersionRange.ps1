@@ -4,6 +4,8 @@
 .DESCRIPTION
   Takes a version of the form a.b.c[.d][-branchName], returns the version range to set in the nuspec
   [a.b.c[.d][-branchName], a+1.0.0)
+.PARAMETER SpecificVersion
+  A switch parameter that will enforce the use of a specific version rather than a range of versions, even if the version number passed in is semantically versioned. This can be used to prevent run-time assembly loading problems, for instance when several applications are running within the same application domain (i.e. SSMS plugins). 
 .EXAMPLE
   Get-DependencyVersionRange
 #>
