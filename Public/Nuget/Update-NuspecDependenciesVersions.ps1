@@ -20,7 +20,10 @@ function Update-NuspecDependenciesVersions {
         [Hashtable] $PackageVersionOverride,
 
         # A list of names of packages whose versions should not be changed.
-        [string[]] $doNotUpdate
+        [string[]] $doNotUpdate,
+        
+        # Whether to force the use of specific versions instead of using ranges
+        [switch] $SpecificVersions
     )
 
     begin {
@@ -57,9 +60,9 @@ function Update-NuspecDependenciesVersions {
 
         $nuspec = [xml] (Get-Content $NuspecFilePath)
         # Update dependencies in groups
-        $nuspec.package.metadata.dependencies.group.dependency | Update-Dependency -NugetPackages $nugetPackages -DoNotUpdate $doNotUpdate
+        $nuspec.package.metadata.dependencies.group.dependency | Update-Dependency -NugetPackages $nugetPackages -DoNotUpdate $doNotUpdate -SpecificVersions:$SpecificVersions
         # Update dependencies outside of groups
-        $nuspec.package.metadata.dependencies.dependency | Update-Dependency -NugetPackages $nugetPackages -DoNotUpdate $doNotUpdate
+        $nuspec.package.metadata.dependencies.dependency | Update-Dependency -NugetPackages $nugetPackages -DoNotUpdate $doNotUpdate -SpecificVersions:$SpecificVersions
 
         $nuspec.Save($NuspecFilePath)
         Write-Verbose "Processed $NuspecFilePath"
@@ -75,8 +78,9 @@ function Update-Dependency() {
         [Parameter(Mandatory = $True, Position = 1)]
         $NugetPackages,
         # A list of names of packages whose versions should not be changed.
-        [string[]] $doNotUpdate = $()
-
+        [string[]] $doNotUpdate = $(),
+        # Whether to force the use of specific versions instead of using ranges
+        [switch] $SpecificVersions
     )
 
     process {
@@ -88,7 +92,7 @@ function Update-Dependency() {
         # Update the version of the dependency with the one from $nugetPackages
         $version = $NugetPackages | where Id -eq $baseId | select -ExpandProperty Version
         if($version) {
-            $InputObject.version = Get-DependencyVersionRange $version
+            $InputObject.version = Get-DependencyVersionRange $version -SpecificVersion:$SpecificVersions
             Write-Verbose "Set dependency of $($InputObject.id) to $($InputObject.version)"
         } else {
             Write-Verbose "Keeping dependency of $($InputObject.id) to $($InputObject.version)"

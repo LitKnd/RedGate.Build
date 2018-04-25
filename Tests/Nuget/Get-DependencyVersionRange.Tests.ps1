@@ -33,4 +33,8 @@ Describe 'Get-DependencyVersionRange' {
     It 'should handle a 3 part version with suffix where the suffix contains a dash' {
         Get-DependencyVersionRange '1.2.3-suffix-b' -verbose | Should Be '[1.2.3-suffix-b, 2.0.0-suffix-b)'
     }
+    
+    It 'should handle a 3 part version when specificversion specified' {
+        Get-DependencyVersionRange '1.2.3' -SpecificVersion | Should Be '[1.2.3]'
+    }
 }
