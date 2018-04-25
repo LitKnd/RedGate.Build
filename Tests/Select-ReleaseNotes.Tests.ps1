@@ -314,3 +314,27 @@ Text
         }
     }
 }
+
+# Indentation in block content is preserved
+InModuleScope RedGate.Build {
+    Context 'Indentation is preserved' {
+        $v = Select-ReleaseNotes -ProductName "Test" -Latest -ReleaseNotes @"
+## 3.1.1
+### Features
+* A feature
+
+  With indented content, whose whitespace
+  ought to be preserved
+
+* Another feature
+"@
+        $v.Blocks[0].Value | Should Be @"
+* A feature
+
+  With indented content, whose whitespace
+  ought to be preserved
+
+* Another feature
+"@
+    }
+}
