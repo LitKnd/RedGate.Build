@@ -197,7 +197,7 @@ function Select-ReleaseNotes {
         $Lines = Get-Content $ReleaseNotesPath
     } elseif ($ReleaseNotes) {
         # Makes testing easier
-        $Lines = ($ReleaseNotes -Replace "'r").Split("`n")
+        $Lines = ($ReleaseNotes -Replace "`r").Split("`n")
     } else {
         # Shouldn't happen due to ParameterSetName usage above
         throw 'No $ReleaseNotesPath or $ReleaseNotes specified'
