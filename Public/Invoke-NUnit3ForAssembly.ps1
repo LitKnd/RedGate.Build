@@ -25,9 +25,8 @@ function Invoke-NUnit3ForAssembly {
     [string] $NUnitVersion = '3.0.0',
     # If specified, pass --x86 to nunit3-console
     [switch] $x86,
-    # If specified, Framework version to be used for tests. (pass --framework=XX to nunit3-console)
-    [ValidateSet($null, 'mono', 'mono-4.0', 'net-2.0', 'net-3.5', 'net-4.0')]
-    [string] $FrameworkVersion,
+    # If specified, the framework version to be used for tests. (pass --framework=XX to nunit3-console). e.g. 'net-4.6', 'net-4.7'
+    [string] $FrameworkVersion = $null,
     # NUnit3 Test selection EXPRESSION indicating what tests will be run
     # example: "method =~ /DataTest*/ && cat = Slow"
     [string] $Where,

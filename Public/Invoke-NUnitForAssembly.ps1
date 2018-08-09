@@ -26,9 +26,8 @@ function Invoke-NUnitForAssembly {
     [string] $NUnitVersion = $DefaultNUnitVersion,
     # Whether to use nunit x86 or nunit x64 (default)
     [switch] $x86,
-    # If specified, Framework version to be used for tests. (pass /framework=XX to nunit-console)
-    [ValidateSet($null, 'net-1.1', 'net-2.0', 'net-3.5', 'net-4.0', 'net-4.5', 'net-4.6', 'net-4.7')]
-    [string] $FrameworkVersion,
+    # If specified, the framework version to be used for tests. (pass /framework=XX to nunit-console). e.g. 'net-4.6', 'net-4.7'
+    [string] $FrameworkVersion = $null,
     # A list of excluded test categories
     [string[]] $ExcludedCategories = @(),
     # A list of incuded test categories
