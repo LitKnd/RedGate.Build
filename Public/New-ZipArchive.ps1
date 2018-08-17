@@ -72,4 +72,4 @@ function New-ZipArchive {
     }
 }
 
-New-Alias Zip-Files New-ZipArchive
+New-Alias Zip-Files New-ZipArchive -Force
