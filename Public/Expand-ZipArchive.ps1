@@ -31,4 +31,4 @@ function Expand-ZipArchive {
   }
 }
 
-New-Alias Unzip-Files Expand-ZipArchive
+New-Alias Unzip-Files Expand-ZipArchive -Force
