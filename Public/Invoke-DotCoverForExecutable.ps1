@@ -73,7 +73,7 @@ function Invoke-DotCoverForExecutable {
     $DotCoverArguments += "/TargetArguments=$EscapedTargetArguments"
   }
 
-  if (![string]::IsNullOrWhiteSpace($TargetWorkingDirectory)) {
+  if ($TargetWorkingDirectory) {
     $DotCoverArguments += "/TargetWorkingDir=`"$TargetWorkingDirectory`""
   }
 
