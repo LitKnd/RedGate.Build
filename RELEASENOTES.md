@@ -1,6 +1,7 @@
 # 0.6
 
 - `Update-NuspecDependenciesVersions` now accepts the `-SpecificVersions` switch. Using the switch will use a specific version rather than a range for dependencies with three-part version numbers.
+- `Invoke-NUnit3ForAssembly` and `Invoke-DotCoverForExecutable` now accept the optional `-TargetWorkingDirectory` parameter to specify the working directory for the tests to run in
 
 # 0.5
 

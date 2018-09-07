@@ -43,7 +43,9 @@ function Invoke-NUnit3ForAssembly {
     # The dotcover filters passed to dotcover.exe
     [string] $DotCoverAttributeFilters = '',
     # The dotcover process filters passed to dotcover.exe. Requires dotcover version 2016.2 or later
-    [string] $DotCoverProcessFilters = ''
+    [string] $DotCoverProcessFilters = '',
+    # The working directory of the test process
+    [string] $TargetWorkingDirectory
   )
 
   Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState -Name 'VerbosePreference'
@@ -76,14 +78,18 @@ function Invoke-NUnit3ForAssembly {
         -DotCoverVersion $DotCoverVersion `
         -Filters $DotCoverFilters `
         -AttributeFilters $DotCoverAttributeFilters `
-        -ProcessFilters $DotCoverProcessFilters
+        -ProcessFilters $DotCoverProcessFilters `
+        -TargetWorkingDirectory $TargetWorkingDirectory
 
     } else {
+
+      if (![string]::IsNullOrWhiteSpace($TargetWorkingDirectory)) {
+        Push-Location $TargetWorkingDirectory
+      }
 
       Execute-Command {
         & $NunitExecutable $NunitArguments
       }
-
     }
 
   } finally {
@@ -92,6 +98,10 @@ function Invoke-NUnit3ForAssembly {
         -AssemblyPath $AssemblyPath `
         -TestResultFilenamePattern $TestResultFilenamePattern `
         -ImportResultsToCIServer (!$isTeamcity) # Do not import results to Teamcity since NUnit 3 uses service messages to integrate with Teamcity on its own.
+      
+        if (![string]::IsNullOrWhiteSpace($TargetWorkingDirectory)) {
+        Pop-Location
+      }
   }
 
 }
