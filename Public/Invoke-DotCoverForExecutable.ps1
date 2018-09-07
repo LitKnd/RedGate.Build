@@ -74,7 +74,7 @@ function Invoke-DotCoverForExecutable {
   }
 
   if (![string]::IsNullOrWhiteSpace($TargetWorkingDirectory)) {
-    $DotCoverArguments += "/TargetWorkingDir=$TargetWorkingDirectory"
+    $DotCoverArguments += "/TargetWorkingDir=`"$TargetWorkingDirectory`""
   }
 
   $DotCoverPath = Get-DotCoverExePath -DotCoverVersion $DotCoverVersion
