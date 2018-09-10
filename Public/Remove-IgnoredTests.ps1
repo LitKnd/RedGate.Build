@@ -37,7 +37,7 @@ function Remove-IgnoredTests {
   Write-Verbose "Loading test results from $TestResultsPath"
   $xml = [xml](Get-Content $TestResultsPath)
 
-  $ignoredTests = $xml | Select-Xml -XPath '//test-suite[@result="Ignored"]'
+  $ignoredTests = $xml | Select-Xml -XPath '//test-suite[@result="Ignored" or @label="Ignored"]'
 
   foreach($test in $ignoredTests) {
     foreach( $reason in @($ReasonsIgnored)  ) {
