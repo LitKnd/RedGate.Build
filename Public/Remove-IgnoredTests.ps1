@@ -17,8 +17,7 @@ function Remove-IgnoredTests {
 
     # A list of ignored reason messages.
     # Only tests with a ignored reason matching a string in this list will be removed
-    # wildcards '*' are supported
-    [string[]] $ReasonsIgnored = @('*'),
+    [string[]] $ReasonsIgnored = @(),
 
     # Use this parameter to save the updated xml to a different file
     [string] $DestinationFilePath
@@ -34,22 +33,41 @@ function Remove-IgnoredTests {
     $DestinationFilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationFilePath)
   }
 
-  Write-Verbose "Loading test results from $TestResultsPath"
-  $xml = [xml](Get-Content $TestResultsPath)
+  $whereClause = "//test-suite[(@result='Ignored' or @label='Ignored') and (" + (($ReasonsIgnored | ForEach-Object { "reason/message='$_'" }) -join " or ") + ")]"
 
-  $ignoredTests = $xml | Select-Xml -XPath '//test-suite[@result="Ignored" or @label="Ignored"]'
+  $stringBuilder = [System.Text.StringBuilder]::new()
+  $stringBuilder.AppendLine("<xsl:stylesheet version=`"1.0`" xmlns:xsl=`"http://www.w3.org/1999/XSL/Transform`">") | Out-Null
+  $stringBuilder.AppendLine("<xsl:template match=`"@* | node()`"><xsl:copy><xsl:apply-templates select=`"@* | node()`"/></xsl:copy></xsl:template>") | Out-Null
+  $stringBuilder.AppendLine("<xsl:template match=`"$whereClause`" />") | Out-Null
+  $stringBuilder.AppendLine("</xsl:stylesheet>") | Out-Null
+ 
+  $compiledTransform = [System.Xml.Xsl.XslCompiledTransform]::new()
+  $stringReader = [System.IO.StringReader]::new($stringBuilder.ToString())
+  $xmlReader = [System.Xml.XmlTextReader]::new($stringReader)
+  $compiledTransform.Load($xmlReader)
+  $stringReader.Dispose()
+  $xmlReader.Dispose()
 
-  foreach($test in $ignoredTests) {
-    foreach( $reason in @($ReasonsIgnored)  ) {
-      if( $test.node.Reason.message.innertext -like $reason ) {
-        # remove the test
-        Write-Verbose "Removing ignored test: $($test.node.name)"
-        $test.node.ParentNode.RemoveChild($test.node) | Out-Null
-        break;
-      }
-    }
-  }
+  $reader = [System.Xml.XmlReader]::Create($TestResultsPath)
+  $filename = Split-Path -Path $TestResultsPath -Leaf
+  $tempDirectory = New-TempDir
+  $tempFileName = Join-Path $tempDirectory $filename
+  $writer = [System.Xml.XmlWriter]::Create("$tempFileName")
+  $compiledTransform.Transform($reader, $writer)
 
-  Write-Verbose "Saving updated results to $DestinationFilePath"
-  $xml.Save( $DestinationFilePath)
+  $reader.Dispose()
+  $writer.Dispose()
+
+  Move-Item -Path $tempFileName -Destination $DestinationFilePath -Force
+  Remove-Item -Path $tempDirectory -Recurse -Force
+}
+
+function Process-TestSuite {
+  [CmdletBinding()]
+  param(
+    # The path of the test results xml file to process
+    [Parameter(Mandatory=$true)]
+    [System.Xml.XmlReader] $XmlReader
+  )
+
 }

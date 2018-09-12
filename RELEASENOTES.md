@@ -2,7 +2,7 @@
 
 - `Update-NuspecDependenciesVersions` now accepts the `-SpecificVersions` switch. Using the switch will use a specific version rather than a range for dependencies with three-part version numbers.
 - `Invoke-NUnit3ForAssembly` and `Invoke-DotCoverForExecutable` now accept the optional `-TargetWorkingDirectory` parameter to specify the working directory for the tests to run in
-- `Remove-IgnoredTests` now supports the NUnit 3 results xml format
+- `Remove-IgnoredTests` now supports the NUnit 3 results xml format and uses an xslt transform to perform the removal
 
 # 0.5
 
