@@ -58,8 +58,17 @@ function Remove-IgnoredTests {
   $reader.Dispose()
   $writer.Dispose()
 
-  Move-Item -Path $tempFileName -Destination $DestinationFilePath -Force
-  Remove-Item -Path $tempDirectory -Recurse -Force
+  if (Test-Path -Path $DestinationFilePath)
+  {
+    $destinationFileName = Split-Path -Path $DestinationFilePath -Leaf
+    Write-Host "Destination file already exists, renaming it to $destinationFileName.original"
+    Rename-Item -Path $DestinationFilePath "$destinationFileName.original" -Force -Verbose
+  }
+  
+  Write-Host "Moving temporary file to the specified location"
+  Move-Item -Path $tempFileName -Destination $DestinationFilePath -Force -Verbose
+  Write-Host "Removing the temporary directory"
+  Remove-Item -Path $tempDirectory -Recurse -Force -Verbose
 }
 
 function Process-TestSuite {
