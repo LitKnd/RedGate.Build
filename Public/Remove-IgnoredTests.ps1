@@ -58,11 +58,16 @@ function Remove-IgnoredTests {
   $reader.Dispose()
   $writer.Dispose()
 
-  if (Test-Path -Path $DestinationFilePath)
+  $totalSleep = 0
+  while (-not (Test-FileUnlocked -Path $TestResultsPath))
   {
-    $destinationFileName = Split-Path -Path $DestinationFilePath -Leaf
-    Write-Host "Destination file already exists, renaming it to $destinationFileName.original"
-    Rename-Item -Path $DestinationFilePath "$destinationFileName.original" -Force -Verbose
+    if ($totalSleep -ge 300)
+    {
+      throw [System.TimeoutException] "File $testResultsPath has been locked for more than 5 minutes."
+    }
+    Write-Host "File $testResultsPath locked. Sleeping for 10 seconds."
+    $totalSleep += 10
+    Start-Sleep -s 10
   }
 
   Write-Host "Moving temporary file to the specified location"
