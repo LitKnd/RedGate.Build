@@ -64,19 +64,9 @@ function Remove-IgnoredTests {
     Write-Host "Destination file already exists, renaming it to $destinationFileName.original"
     Rename-Item -Path $DestinationFilePath "$destinationFileName.original" -Force -Verbose
   }
-  
+
   Write-Host "Moving temporary file to the specified location"
   Move-Item -Path $tempFileName -Destination $DestinationFilePath -Force -Verbose
   Write-Host "Removing the temporary directory"
   Remove-Item -Path $tempDirectory -Recurse -Force -Verbose
-}
-
-function Process-TestSuite {
-  [CmdletBinding()]
-  param(
-    # The path of the test results xml file to process
-    [Parameter(Mandatory=$true)]
-    [System.Xml.XmlReader] $XmlReader
-  )
-
 }
