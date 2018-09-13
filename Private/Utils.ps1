@@ -31,3 +31,23 @@ Executing: $ScriptBlock
 
   }
 }
+
+function Test-FileUnlocked {
+  [CmdletBinding()]
+  param(
+    # The path of the file to check the lock status of
+    [Parameter(Mandatory=$true)]
+    [string] $Path
+  )
+
+  try {
+    $Path = Resolve-Path $Path
+    $stream = [System.IO.File]::Open($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+    $stream.Close()
+    $stream.Dispose()
+    return $true
+  }
+  catch {
+    return $false
+  }
+}
