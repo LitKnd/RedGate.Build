@@ -17,8 +17,8 @@ function Remove-IgnoredTests {
 
     # A list of ignored reason messages.
     # Only tests with a ignored reason matching a string in this list will be removed
-    # wildcards '*' are supported
-    [string[]] $ReasonsIgnored = @('*'),
+    [Parameter(Mandatory=$true)]
+    [string[]] $ReasonsIgnored,
 
     # Use this parameter to save the updated xml to a different file
     [string] $DestinationFilePath
@@ -34,22 +34,35 @@ function Remove-IgnoredTests {
     $DestinationFilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationFilePath)
   }
 
-  Write-Verbose "Loading test results from $TestResultsPath"
-  $xml = [xml](Get-Content $TestResultsPath)
+  $reasonsIgnoredString = ($ReasonsIgnored | ForEach-Object { "reason/message='$_'" }) -join " or "
 
-  $ignoredTests = $xml | Select-Xml -XPath '//test-suite[@result="Ignored" or @label="Ignored"]'
+  $xsl = @"
+  <xsl:stylesheet version=`"1.0`" xmlns:xsl=`"http://www.w3.org/1999/XSL/Transform`">
+  <xsl:template match=`"@* | node()`"><xsl:copy><xsl:apply-templates select=`"@* | node()`"/></xsl:copy></xsl:template>
+  <xsl:template match=`"//test-suite[(@result='Ignored' or @label='Ignored') and ($reasonsIgnoredString)`" />
+  </xsl:stylesheet>
+"@
 
-  foreach($test in $ignoredTests) {
-    foreach( $reason in @($ReasonsIgnored)  ) {
-      if( $test.node.Reason.message.innertext -like $reason ) {
-        # remove the test
-        Write-Verbose "Removing ignored test: $($test.node.name)"
-        $test.node.ParentNode.RemoveChild($test.node) | Out-Null
-        break;
-      }
-    }
-  }
+  $compiledTransform = [System.Xml.Xsl.XslCompiledTransform]::new()
+  $stringReader = [System.IO.StringReader]::new($xsl)
+  $xmlReader = [System.Xml.XmlTextReader]::new($stringReader)
+  $compiledTransform.Load($xmlReader)
+  $stringReader.Dispose()
+  $xmlReader.Dispose()
 
-  Write-Verbose "Saving updated results to $DestinationFilePath"
-  $xml.Save( $DestinationFilePath)
+  $reader = [System.Xml.XmlReader]::Create($TestResultsPath)
+  $filename = Split-Path -Path $TestResultsPath -Leaf
+  $tempDirectory = New-TempDir
+  $tempFileName = Join-Path $tempDirectory $filename
+  $writer = [System.Xml.XmlWriter]::Create("$tempFileName")
+  $compiledTransform.Transform($reader, $writer)
+
+  $reader.Dispose()
+  $writer.Dispose()
+
+  Wait-FileUnlocked -Path $TestResultsPath
+  Write-Verbose "Moving temporary file to the specified location"
+  Move-Item -Path $tempFileName -Destination $DestinationFilePath -Force -Verbose
+  Write-Verbose "Removing the temporary directory"
+  Remove-Item -Path $tempDirectory -Recurse -Force -Verbose
 }
