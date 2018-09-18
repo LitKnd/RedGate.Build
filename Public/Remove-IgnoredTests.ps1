@@ -60,8 +60,8 @@ function Remove-IgnoredTests {
   $writer.Dispose()
 
   Wait-FileUnlocked -Path $TestResultsPath
-  Write-Host "Moving temporary file to the specified location"
+  Write-Verbose "Moving temporary file to the specified location"
   Move-Item -Path $tempFileName -Destination $DestinationFilePath -Force -Verbose
-  Write-Host "Removing the temporary directory"
+  Write-Verbose "Removing the temporary directory"
   Remove-Item -Path $tempDirectory -Recurse -Force -Verbose
 }
