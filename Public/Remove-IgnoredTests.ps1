@@ -33,7 +33,8 @@ function Remove-IgnoredTests {
     $DestinationFilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationFilePath)
   }
 
-  $whereClause = "//test-suite[(@result='Ignored' or @label='Ignored') and (" + (($ReasonsIgnored | ForEach-Object { "reason/message='$_'" }) -join " or ") + ")]"
+  $reasonsIgnoredString = ($ReasonsIgnored | ForEach-Object { "reason/message='$_'" }) -join " or "
+  $whereClause = "//test-suite[(@result='Ignored' or @label='Ignored') and (" + $reasonsIgnoredString + ")]"
 
   $stringBuilder = [System.Text.StringBuilder]::new()
   $stringBuilder.AppendLine("<xsl:stylesheet version=`"1.0`" xmlns:xsl=`"http://www.w3.org/1999/XSL/Transform`">") | Out-Null
