@@ -34,16 +34,16 @@ function Remove-IgnoredTests {
   }
 
   $reasonsIgnoredString = ($ReasonsIgnored | ForEach-Object { "reason/message='$_'" }) -join " or "
-  $whereClause = "//test-suite[(@result='Ignored' or @label='Ignored') and (" + $reasonsIgnoredString + ")]"
 
-  $stringBuilder = [System.Text.StringBuilder]::new()
-  $stringBuilder.AppendLine("<xsl:stylesheet version=`"1.0`" xmlns:xsl=`"http://www.w3.org/1999/XSL/Transform`">") | Out-Null
-  $stringBuilder.AppendLine("<xsl:template match=`"@* | node()`"><xsl:copy><xsl:apply-templates select=`"@* | node()`"/></xsl:copy></xsl:template>") | Out-Null
-  $stringBuilder.AppendLine("<xsl:template match=`"$whereClause`" />") | Out-Null
-  $stringBuilder.AppendLine("</xsl:stylesheet>") | Out-Null
- 
+  $xsl = @"
+  <xsl:stylesheet version=`"1.0`" xmlns:xsl=`"http://www.w3.org/1999/XSL/Transform`">
+  <xsl:template match=`"@* | node()`"><xsl:copy><xsl:apply-templates select=`"@* | node()`"/></xsl:copy></xsl:template>
+  <xsl:template match=`"//test-suite[(@result='Ignored' or @label='Ignored') and ($reasonsIgnoredString)`" />
+  </xsl:stylesheet>
+"@
+
   $compiledTransform = [System.Xml.Xsl.XslCompiledTransform]::new()
-  $stringReader = [System.IO.StringReader]::new($stringBuilder.ToString())
+  $stringReader = [System.IO.StringReader]::new($xsl)
   $xmlReader = [System.Xml.XmlTextReader]::new($stringReader)
   $compiledTransform.Load($xmlReader)
   $stringReader.Dispose()
