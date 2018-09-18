@@ -17,7 +17,8 @@ function Remove-IgnoredTests {
 
     # A list of ignored reason messages.
     # Only tests with a ignored reason matching a string in this list will be removed
-    [string[]] $ReasonsIgnored = @(),
+    [Parameter(Mandatory=$true)]
+    [string[]] $ReasonsIgnored,
 
     # Use this parameter to save the updated xml to a different file
     [string] $DestinationFilePath
