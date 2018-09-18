@@ -59,18 +59,7 @@ function Remove-IgnoredTests {
   $reader.Dispose()
   $writer.Dispose()
 
-  $totalSleep = 0
-  while (-not (Test-FileUnlocked -Path $TestResultsPath))
-  {
-    if ($totalSleep -ge 300)
-    {
-      throw [System.TimeoutException] "File $testResultsPath has been locked for more than 5 minutes."
-    }
-    Write-Host "File $testResultsPath locked. Sleeping for 10 seconds."
-    $totalSleep += 10
-    Start-Sleep -s 10
-  }
-
+  Wait-FileUnlocked -Path $TestResultsPath
   Write-Host "Moving temporary file to the specified location"
   Move-Item -Path $tempFileName -Destination $DestinationFilePath -Force -Verbose
   Write-Host "Removing the temporary directory"
