@@ -54,7 +54,7 @@ Function Push-GitChangesToBranch
     execute-command { & git checkout --quiet -B $BranchName }
     execute-command { & git add --all }
     execute-command { & git commit -am $CommitMessage }
-    execute-command { & git push -f $RemoteName $BranchName`:$BranchName }
+    execute-command { & git push --porcelain -f $RemoteName $BranchName`:$BranchName }
     if($GitLocalUserName){
         git config --local user.name $GitLocalUserName
         git config --local user.email $GitLocalEmail
