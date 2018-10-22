@@ -49,9 +49,9 @@ Function Push-GitChangesToBranch
     git config --local user.name $CommitUsername
     git config --local user.email $CommitEmail
 
-    # Redirect git's stderr to stdout then to Write-Host
-    # for powershell v5.1.17763.1 (Windows Server 2019) to stop throwing errors
-    execute-command { & git checkout -B $BranchName 2>&1 | Write-Host }
+    # Use --quiet with git checkout because progress is written to stderr
+    # which causes powershell v5.1.17763.1 (Windows Server 2019) to throw errors
+    execute-command { & git checkout --quiet -B $BranchName }
     execute-command { & git add --all }
     execute-command { & git commit -am $CommitMessage }
     execute-command { & git push -f $RemoteName $BranchName`:$BranchName }
