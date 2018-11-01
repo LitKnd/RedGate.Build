@@ -1,3 +1,8 @@
+# 1.0
+
+- `Invoke-NUnitForAssembly` and `Invoke-NUnit3ForAssembly`, when run with code coverage enabled, by default only cover the NUnit process itself, any not any subprocesses. This can be overridden using the `-DotCoverProcessFilters` parameter.
+- `-DotNotImportResultsToTeamcity` has been renamed to `-DoNotImportResultsToTeamcity` (removing the extra t).
+
 # 0.6
 
 - `Update-NuspecDependenciesVersions` now accepts the `-SpecificVersions` switch. Using the switch will use a specific version rather than a range for dependencies with three-part version numbers.
