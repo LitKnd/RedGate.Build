@@ -43,7 +43,7 @@ function Invoke-NUnit3ForAssembly {
     # The dotcover filters passed to dotcover.exe
     [string] $DotCoverAttributeFilters = '',
     # The dotcover process filters passed to dotcover.exe. Requires dotcover version 2016.2 or later
-    [string] $DotCoverProcessFilters = '+:nunit3-console.exe',
+    [string] $DotCoverProcessFilters = '+:nunit3-console.exe;+:nunit-*.exe',
     # The working directory of the test process
     [string] $TargetWorkingDirectory
   )
