@@ -82,7 +82,7 @@ Function Update-RedgateNugetPackages
         }
 
         $CommitMessage = @"
-Updated $($UpdatedPackages.Count) Redgate packages:
+Updated $($UpdatedPackages.Count) Redgate packages:`n
 $($UpdatedPackages -join "`n")
 "@
 
