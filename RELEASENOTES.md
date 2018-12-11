@@ -2,6 +2,7 @@
 
 - `Invoke-NUnitForAssembly` and `Invoke-NUnit3ForAssembly`, when run with code coverage enabled, by default only cover the NUnit process itself, any not any subprocesses. This can be overridden using the `-DotCoverProcessFilters` parameter.
 - `-DotNotImportResultsToTeamcity` has been renamed to `-DoNotImportResultsToTeamcity` (removing the extra t).
+- Fixed issues where certain cmdlets where not working for pipelines
 
 # 0.6
 

@@ -46,26 +46,28 @@ function Update-ProjectProperties
         [string] $PackageReleaseNotes
     )
 
-    if (-not (Test-Path $Path)) {
-        throw "Project file not found: $Path"
+    process {
+        if (-not (Test-Path $Path)) {
+            throw "Project file not found: $Path"
+        }
+
+        $ProjectXml = [xml] (Get-Content $Path)
+        $PropertyGroupElement = ($ProjectXml | Select-Xml -XPath '/Project[@Sdk]/PropertyGroup[1]').Node
+        if ($PropertyGroupElement) {
+            Write-Verbose "Updating properties in project file $Path"
+            Update-Property $ProjectXml $PropertyGroupElement 'Version' $Version
+            Update-Property $ProjectXml $PropertyGroupElement 'AssemblyVersion' $AssemblyVersion
+            Update-Property $ProjectXml $PropertyGroupElement 'FileVersion' $FileVersion
+            Update-Property $ProjectXml $PropertyGroupElement 'PackageReleaseNotes' $PackageReleaseNotes
+
+            $ProjectXml.Save($Path)
+        } else {
+            Write-Warning "Project file format not supported. Skipping $Path"
+        }
+
+        # Return the input Path to enable pilelining.
+        return $Path
     }
-
-    $ProjectXml = [xml] (Get-Content $Path)
-    $PropertyGroupElement = ($ProjectXml | Select-Xml -XPath '/Project[@Sdk]/PropertyGroup[1]').Node
-    if ($PropertyGroupElement) {
-        Write-Verbose "Updating properties in project file $Path"
-        Update-Property $ProjectXml $PropertyGroupElement 'Version' $Version
-        Update-Property $ProjectXml $PropertyGroupElement 'AssemblyVersion' $AssemblyVersion
-        Update-Property $ProjectXml $PropertyGroupElement 'FileVersion' $FileVersion
-        Update-Property $ProjectXml $PropertyGroupElement 'PackageReleaseNotes' $PackageReleaseNotes
-
-        $ProjectXml.Save($Path)
-    } else {
-        Write-Warning "Project file format not supported. Skipping $Path"
-    }
-
-    # Return the input Path to enable pilelining.
-	return $Path
 }
 
 function Update-Property

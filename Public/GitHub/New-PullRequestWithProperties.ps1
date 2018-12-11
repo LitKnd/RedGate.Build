@@ -37,13 +37,11 @@ Function New-PullRequestWithProperties
 
         # A list of user logins to assign to the pull request.
         # Set this parameter to an empty list to unassign the pull request.
-        [Parameter(ValueFromPipelineByPropertyName)]
         [string[]] $Assignees = $null,
         
         
         # A list of labels to assign to the pull request.
         # Set this parameter to an empty list to remove all labels
-        [Parameter(ValueFromPipelineByPropertyName)]
         [string[]] $Labels = $null,
 
         # The name of the branch to pull $Head into.

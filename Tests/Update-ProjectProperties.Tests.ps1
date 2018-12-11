@@ -4,6 +4,7 @@
 Describe 'Update-AssemblyVersion' {
 
     $XmlPath = "$([IO.Path]::GetTempPath())$([guid]::NewGuid()).csproj"
+    $XmlPath2 = "$([IO.Path]::GetTempPath())$([guid]::NewGuid()).csproj"
     
     Context 'given an empty project file' {
         $Xml = [xml] @'
@@ -17,6 +18,20 @@ Describe 'Update-AssemblyVersion' {
         It 'should have a <Version/> element when the Version parameter is specified' {
             $Xml.Save($XmlPath)
             Update-ProjectProperties -Path $XmlPath -Version '1.2.3.4-prerelease'
+            [IO.File]::ReadAllText($XmlPath) | Should Be @'
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>1.2.3.4-prerelease</Version>
+  </PropertyGroup>
+</Project>
+'@
+        }
+
+        It 'should have a <Version/> element when the Version parameter is specified on all files' {
+            $Xml.Save($XmlPath)
+            $Xml.Save($XmlPath2)
+            @($XmlPath, $XmlPath2) |Update-ProjectProperties -Version '1.2.3.4-prerelease'
             [IO.File]::ReadAllText($XmlPath) | Should Be @'
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -146,4 +161,5 @@ Describe 'Update-AssemblyVersion' {
     }
 
     Remove-Item $XmlPath
+    Remove-Item $XmlPath2
 }

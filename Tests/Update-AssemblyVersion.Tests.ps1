@@ -5,11 +5,15 @@ Describe 'Update-AssemblyVersion' {
 
     BeforeEach {
         $FilePath = [System.IO.Path]::GetTempFileName()
+        $FilePath2 = [System.IO.Path]::GetTempFileName()
     }
     
     AfterEach {
         if (Test-Path $FilePath) {
             Remove-Item $FilePath
+        }
+        if (Test-Path $FilePath2) {
+            Remove-Item $FilePath2
         }
     }
 
@@ -19,6 +23,14 @@ Describe 'Update-AssemblyVersion' {
     
     function Get-FileContents() {
         return [System.IO.File]::ReadAllText($FilePath)
+    }
+
+    function Set-FileContents2($Contents) {
+        [System.IO.File]::WriteAllText($FilePath2, $Contents)
+    }
+    
+    function Get-FileContents2() {
+        return [System.IO.File]::ReadAllText($FilePath2)
     }
     
     Context 'setting the AssemblyVersion' {
@@ -137,6 +149,16 @@ Describe 'Update-AssemblyVersion' {
             Set-FileContents('AssemblyInformationalVersion("0.0.0.0")')
             $FilePath | Update-AssemblyVersion -Version '1.2.3.4'
             Get-FileContents | Should Be 'AssemblyInformationalVersion("1.2.3.4")'
+        }
+    }
+    
+    Context 'multiple files' {
+        It 'should inherit the AssemblyFileVersion from the AssemblyVersion' {
+            Set-FileContents('AssemblyFileVersion("0.0.0.0")')
+            Set-FileContents2('AssemblyFileVersion("0.0.0.0")')
+            @($FilePath, $FilePath2) | Update-AssemblyVersion -Version '1.2.3.4'
+            Get-FileContents | Should Be 'AssemblyFileVersion("1.2.3.4")'
+            Get-FileContents2 | Should Be 'AssemblyFileVersion("1.2.3.4")'
         }
     }
 }

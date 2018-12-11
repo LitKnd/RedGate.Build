@@ -19,26 +19,28 @@ function Get-DependencyVersionRange
         [string] $Version,
         [switch] $SpecificVersion
     )
+    
+    process {        
+        if($Version.Contains('-'))
+        {
+            $currentVersion = $Version.Split('-', 2)[0]
+            $branchSuffix = "-$($Version.Split('-', 2)[1])"
+        } else
+        {
+            $currentVersion = $Version
+            $branchSuffix = ""
+        }
 
-    if($Version.Contains('-'))
-    {
-        $currentVersion = $Version.Split('-', 2)[0]
-        $branchSuffix = "-$($Version.Split('-', 2)[1])"
-    } else
-    {
-        $currentVersion = $Version
-        $branchSuffix = ""
-    }
-
-    $versionParts = $currentVersion.Split(".")
-    if ($versionParts.Length -eq 3 -And -Not $SpecificVersion) #https://semver.org/
-    {
-        $nextMajorVersion = [int] $versionParts[0] + 1
-        $nextMajorVersionString = "$nextMajorVersion.0.0$branchSuffix"
-        return "[$Version, $nextMajorVersionString)"
-    }
-    else
-    {
-        return '[' + $Version + ']'
+        $versionParts = $currentVersion.Split(".")
+        if ($versionParts.Length -eq 3 -And -Not $SpecificVersion) #https://semver.org/
+        {
+            $nextMajorVersion = [int] $versionParts[0] + 1
+            $nextMajorVersionString = "$nextMajorVersion.0.0$branchSuffix"
+            return "[$Version, $nextMajorVersionString)"
+        }
+        else
+        {
+            return '[' + $Version + ']'
+        }
     }
 }
