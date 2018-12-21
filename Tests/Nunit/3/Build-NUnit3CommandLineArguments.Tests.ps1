@@ -25,10 +25,11 @@ Describe 'Build-NUnit3CommandLineArguments' {
             -x86 $true `
             -FrameworkVersion 'net-4.0' `
             -Where 'mywherecondition' `
-            -TestResultFilenamePattern 'SpecialPattern'
+            -TestResultFilenamePattern 'SpecialPattern' `
+            -ProcessIsolation 'Single'
 
         It 'should return the right value' {
-            $result -join ' ' | Should Be "$(Nunit3Parameters 'my-test-assembly.dll' 'SpecialPattern') --x86 --framework=net-4.0 --where=mywherecondition"
+            $result -join ' ' | Should Be "$(Nunit3Parameters 'my-test-assembly.dll' 'SpecialPattern') --x86 --framework=net-4.0 --where=mywherecondition --process=Single"
         }
     }
 

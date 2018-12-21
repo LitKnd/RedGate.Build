@@ -34,6 +34,9 @@ function Invoke-NUnit3ForAssembly {
     # For MyAssembly.Test.dll, if TestResultFilenamePattern is 'TestResult',
     # the test result filename would be 'MyAssembly.Test.dll.TestResult.xml'
     [string] $TestResultFilenamePattern = 'TestResult',
+    # Process isolation - see https://github.com/nunit/docs/wiki/Console-Command-Line
+    [ValidateSet('Single', 'Separate', 'Multiple')]
+    [string] $ProcessIsolation = $null,
     # Set to $true to enable code coverage using dotcover
     [bool] $EnableCodeCoverage = $false,
     # The version of the nuget package containing DotCover.exe (JetBrains.dotCover.CommandLineTools)
@@ -65,7 +68,8 @@ function Invoke-NUnit3ForAssembly {
       -x86 $x86.IsPresent `
       -Where $Where `
       -FrameworkVersion $FrameworkVersion `
-      -TestResultFilenamePattern $TestResultFilenamePattern
+      -TestResultFilenamePattern $TestResultFilenamePattern `
+      -ProcessIsolation $ProcessIsolation
 
     $NunitExecutable = Get-NUnit3ConsoleExePath -NUnitVersion $NUnitVersion
 
