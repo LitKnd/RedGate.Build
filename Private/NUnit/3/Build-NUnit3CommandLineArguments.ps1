@@ -6,7 +6,8 @@ function Build-NUnit3CommandLineArguments {
         [bool] $x86,
         [string] $FrameworkVersion,
         [string] $Where,
-        [string] $TestResultFilenamePattern = 'TestResult'
+        [string] $TestResultFilenamePattern = 'TestResult',
+        [string] $ProcessIsolation
     )
 
     $params = $AssemblyPath,
@@ -15,16 +16,20 @@ function Build-NUnit3CommandLineArguments {
         "--labels=On",
         "--out=`"$AssemblyPath.$TestResultFilenamePattern.TestOutput.txt`""
 
-    if($x86) {
+    if ($x86) {
         $params += "--x86"
     }
 
-    if($FrameworkVersion) {
+    if ($FrameworkVersion) {
         $params += "--framework=$FrameworkVersion"
     }
 
-    if($Where) {
+    if ($Where) {
         $params += "--where=$Where"
+    }
+    
+    if ($ProcessIsolation) {
+        $params += "--process=$ProcessIsolation"
     }
 
     return $params
