@@ -49,10 +49,11 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
 .SYNOPSIS
   Rewrites an AssemblyInfo file in a standardized, opitionated way.
 .DESCRIPTION
-  Rewrites an AssemblyInfo file in a standardized, opitionated way. ComVisible, Guid, BootstrapperApplication, ThemeInfo, and InternalsVisibleTo are preserved, but all other properties are standardized. But, if the original AssemblyInfo.cs file contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes.
+  Rewrites an AssemblyInfo file in a standardized, opitionated way. AssemblyDescription, ComVisible, Guid, BootstrapperApplication, ThemeInfo, and InternalsVisibleTo are preserved, but all other properties are standardized. But, if the original AssemblyInfo.cs file contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes.
 .NOTES
   This cmdlet standardises AssemblyInfo.cs properties to the following:
   AssemblyTitle = project name
+  AssemblyDescription = preserved
   AssemblyCompany = "Red Gate Software Ltd"
   AssemblyProduct = product name from -ProductName or -ProductNameOverrides
   AssemblyCopyright = "Copyright © Red Gate Software Ltd <year from -Year>"
