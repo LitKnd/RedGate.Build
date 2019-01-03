@@ -62,6 +62,7 @@ using System.Runtime.InteropServices;
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'ClassLibrary1' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary1' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
         }
     }
@@ -147,6 +148,7 @@ using System.Windows;
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'WpfApp1' -ProductName 'SQL Dummy' -RootNamespace 'WpfApp1' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
         }
     }
@@ -219,6 +221,7 @@ using RedGate.SqlClone.Installer.BootstrapperApplication;
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'RedGate.SqlClone.Installer.BootstrapperApplication' -ProductName 'SQL Clone' -RootNamespace 'RedGate.SqlClone.Installer.BootstrapperApplication' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
         }
     }
@@ -260,6 +263,7 @@ using System.Runtime.InteropServices;
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'ClassLibrary2' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary2' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
         }
     }
@@ -301,6 +305,7 @@ using System.Runtime.InteropServices;
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'ClassLibrary3' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary3' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
         }
     }
@@ -348,6 +353,7 @@ using System.Runtime.InteropServices;
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'ClassLibrary4' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary4' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
         }
     }
@@ -375,6 +381,7 @@ using System.Runtime.InteropServices;
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'NewProject' -ProductName 'SQL Dummy' -RootNamespace 'NewProject' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
         }
     }
