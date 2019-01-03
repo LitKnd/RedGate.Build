@@ -304,4 +304,51 @@ using System.Runtime.InteropServices;
             $actualOutput | Should Be $expectedOutput
         }
     }
+    Context 'Custom InternalsVisibleTo' {
+        $initialAssemblyInfo = @"
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("ClassLibrary4")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2018")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+[assembly: InternalsVisibleTo("ClassLibrary2")]
+
+"@
+        $expectedOutput = @"
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("ClassLibrary4")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2019")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+[assembly: InternalsVisibleTo("ClassLibrary2")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+
+"@
+        It 'AssemblyDescription should be preserved' {
+            $filename = (New-TemporaryFile).FullName
+            $initialAssemblyInfo | Out-File $filename -Encoding UTF8
+            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary4' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary4' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
+            $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            $actualOutput | Should Be $expectedOutput
+        }
+    }
 }
