@@ -222,4 +222,45 @@ using RedGate.SqlClone.Installer.BootstrapperApplication;
             $actualOutput | Should Be $expectedOutput
         }
     }
+    Context 'Custom AssemblyDescription' {
+        $initialAssemblyInfo = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("ClassLibrary2")]
+[assembly: AssemblyDescription("This is a custom description")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2018")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+"@
+        $expectedOutput = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("ClassLibrary2")]
+[assembly: AssemblyDescription("This is a custom description")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2019")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+"@
+        It 'AssemblyDescription should be preserved' {
+            $filename = (New-TemporaryFile).FullName
+            $initialAssemblyInfo | Out-File $filename -Encoding UTF8
+            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary2' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary2' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
+            $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            $actualOutput | Should Be $expectedOutput
+        }
+    }
 }
