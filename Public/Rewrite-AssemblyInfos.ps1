@@ -1,21 +1,8 @@
 ﻿<#
 .SYNOPSIS
-  Rewrites all the AssemblyInfo files in a solution in a standardized, opitionated way.
+  Rewrites all the AssemblyInfo files in a solution in a standardized, opinionated way.
 .DESCRIPTION
-  Rewrites all the AssemblyInfo files in a solution in a standardized, opitionated way. If any of the original AssemblyInfo.cs files contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes. This cmdlet should be used on a solution before the solution is compiled, so that the compiled assemblies properties are correctly set.
-.NOTES
-  This cmdlet standardises AssemblyInfo.cs properties to the following:
-  AssemblyTitle = project name
-  AssemblyCompany = "Red Gate Software Ltd"
-  AssemblyProduct = product name from -ProductName or -ProductNameOverrides
-  AssemblyCopyright = "Copyright © Red Gate Software Ltd <year from -Year>"
-  ComVisible = preserved, or false if not present before
-  Guid = preserved
-  AssemblyVersion = version from -Version or -VersionOverrides
-  AssemblyFileVersion = version from -Version or -VersionOverrides
-  BootstrapperApplication = preserved
-  ThemeInfo = preserved
-  InternalsVisibleTo = preserved
+  Rewrites all the AssemblyInfo files in a solution in a standardized, opinionated way. See the description & notes of Rewrite-AssemblyInfo for more information. If any of the original AssemblyInfo.cs files contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes. This cmdlet should be used on a solution before the solution is compiled, so that the compiled assemblies properties are correctly set.
 .PARAMETER SolutionFile
   The path to the solution file.
 .PARAMETER ProductName
