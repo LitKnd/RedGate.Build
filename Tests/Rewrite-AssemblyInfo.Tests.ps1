@@ -351,4 +351,31 @@ using System.Runtime.InteropServices;
             $actualOutput | Should Be $expectedOutput
         }
     }
+    Context 'Empty AssemblyInfo.cs' {
+        $initialAssemblyInfo = @"
+
+"@
+        $expectedOutput = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("NewProject")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2019")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+"@
+        It 'Should write minimal AssemblyInfo.cs' {
+            $filename = (New-TemporaryFile).FullName
+            $initialAssemblyInfo | Out-File $filename -Encoding UTF8
+            Rewrite-AssemblyInfo -ProjectName 'NewProject' -ProductName 'SQL Dummy' -RootNamespace 'NewProject' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
+            $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            $actualOutput | Should Be $expectedOutput
+        }
+    }
 }
