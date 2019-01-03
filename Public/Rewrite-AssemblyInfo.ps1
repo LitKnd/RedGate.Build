@@ -153,8 +153,12 @@ function Rewrite-AssemblyInfo {
     $output += [System.Environment]::NewLine
     $ComVisible = if ($data.ComVisible) { $data.ComVisible } else { 'false' }
     $output += '[assembly: ComVisible(' + $ComVisible + ')]' + [System.Environment]::NewLine
-    if ($null -eq $data.Guid) { throw "Guid not set in $filename" }
-    $output += '[assembly: Guid(' + $data.Guid + ')]' + [System.Environment]::NewLine
+    if ($null -eq $data.Guid) {
+        if ($ComVisible -ne 'false') { throw "Guid not set in $filename despite ComVisible being $ComVisible" }
+    }
+    else {
+        $output += '[assembly: Guid(' + $data.Guid + ')]' + [System.Environment]::NewLine
+    }
 
     if ($data.ThemeInfo) {
         $output += [System.Environment]::NewLine + '[assembly: ThemeInfo(' + $data.ThemeInfo + ')]' + [System.Environment]::NewLine
