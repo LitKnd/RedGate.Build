@@ -145,18 +145,22 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("2.3.4.567")]
 
 "@
-    It 'Should rewrite all AssemblyInfo.cs files in solution' {
-        $productNameOverrides = @{
-            $differentProductProjectName = 'Alternate product name'
-        }
-        $versionOverrides = @{
-            $differentVersionProjectName = [Version] '2.3.4.567'
-        }
-        Rewrite-AssemblyInfos -SolutionFile $solutionFile -ProductName 'SQL Dummy' -Version '1.2.3.456' -Year '2019' -ProductNameOverrides $productNameOverrides -VersionOverrides $versionOverrides
+    $productNameOverrides = @{
+        $differentProductProjectName = 'Alternate product name'
+    }
+    $versionOverrides = @{
+        $differentVersionProjectName = [Version] '2.3.4.567'
+    }
+    Rewrite-AssemblyInfos -SolutionFile $solutionFile -ProductName 'SQL Dummy' -Version '1.2.3.456' -Year '2019' -ProductNameOverrides $productNameOverrides -VersionOverrides $versionOverrides
+    It 'AssemblyInfo for normal project should be rewritten normally' {
         $actualNormalProjectAssemblyInfo = Get-Content $normalProjectAssemblyInfo -Raw -Encoding UTF8
         $actualNormalProjectAssemblyInfo | Should Be $expectedNormalProjectAssemblyInfo
+    }
+    It 'AssemblyInfo for project with product name override should have alternate product name' {
         $actualDifferentProductProjectAssemblyInfo = Get-Content $differentProductProjectAssemblyInfo -Raw -Encoding UTF8
         $actualDifferentProductProjectAssemblyInfo | Should Be $expectedDifferentProductProjectAssemblyInfo
+    }
+    It 'AssemblyInfo for project with version override should have alternate version' {
         $actualDifferentVersionProjectAssemblyInfo = Get-Content $differentVersionProjectAssemblyInfo -Raw -Encoding UTF8
         $actualDifferentVersionProjectAssemblyInfo | Should Be $expectedDifferentVersionProjectAssemblyInfo
     }
