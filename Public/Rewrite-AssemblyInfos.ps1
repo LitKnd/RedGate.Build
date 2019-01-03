@@ -63,10 +63,12 @@ function Rewrite-AssemblyInfos {
             AssemblyInfo = $_.Project -replace '(\\|/|^)[^\\]+$', '\Properties\AssemblyInfo.cs'
         } }
     $missingAssemblyInfos = $assemblyInfos | Where-Object { !(Test-Path $_.AssemblyInfo) }
-    assert ($null -eq $missingAssemblyInfos) @"
+    if ($null -ne $missingAssemblyInfos) {
+        throw @"
 Some projects are missing AssemblyInfo files:
 $($missingAssemblyInfos | Out-String)
 "@
+    }
     $assemblyInfos | ForEach-Object {
         $xml = [xml] (Get-Content $_.Project)
         $projectname = $xml.Project.PropertyGroup.AssemblyName | Where-Object { $_ }

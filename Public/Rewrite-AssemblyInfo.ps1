@@ -103,11 +103,11 @@ function Rewrite-AssemblyInfo {
         if ($line -match $AssemblyAttributeSingleParameterRegex) {
             switch ($matches[1]) {
                 { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid') -contains $_ } {
-                    assert ($null -eq $data[$_]) "$_ is set multiple times in $filename"
+                    if ($null -ne $data[$_]) { throw "$_ is set multiple times in $filename" }
                     $data[$_] = $matches[2]
                 }
                 BootstrapperApplication {
-                    assert ($null -eq $data.BootstrapperApplication) "BootstrapperApplication is set multiple times in $filename"
+                    if ($null -ne $data.BootstrapperApplication) { throw "BootstrapperApplication is set multiple times in $filename" }
                     $data.BootstrapperApplication = $matches[2]
                     $usings.Add('Microsoft.Tools.WindowsInstallerXml.Bootstrapper') | Out-Null
                     if ($RootNamespace) {
@@ -119,13 +119,13 @@ function Rewrite-AssemblyInfo {
                     $usings.Add('System.Runtime.CompilerServices') | Out-Null
                 }
                 default {
-                    assert $false "Unknown attribute $_ in $filename"
+                    throw "Unknown attribute $_ in $filename"
                 }
             }
             continue
         }
         if ($line -match $AssemblyAttributeThemeInfoRegex) {
-            assert ($null -eq $data.ThemeInfo) "ThemeInfo is set multiple times in $filename"
+            if ($null -ne $data.ThemeInfo) { throw "ThemeInfo is set multiple times in $filename" }
             $data.ThemeInfo = $matches[1] + ', ' + $matches[3]
             $usings.Add('System.Windows') | Out-Null
             continue
@@ -136,23 +136,23 @@ function Rewrite-AssemblyInfo {
     $output = $usings | Where-Object { $_.StartsWith('System.') } | ForEach-Object { "using $_;" } | out-string
     $output += $usings | Where-Object { -not $_.StartsWith('System.') } | ForEach-Object { "using $_;" } | out-string
     $output += [System.Environment]::NewLine
-    if ($data.AssemblyTitle) { assert ($data.AssemblyTitle -eq '"' + $ProjectName + '"') "Unexpected AssemblyTitle in $($filename): $($data.AssemblyTitle) instead of ""$ProjectName""" }
+    if ($data.AssemblyTitle -and $data.AssemblyTitle -ne '"' + $ProjectName + '"') { throw "Unexpected AssemblyTitle in $($filename): $($data.AssemblyTitle) instead of ""$ProjectName""" }
     $output += '[assembly: AssemblyTitle("' + $ProjectName + '")]' + [System.Environment]::NewLine
     if ($data.AssemblyDescription -and $data.AssemblyDescription -ne '""') { $output += '[assembly: AssemblyDescription(' + $data.AssemblyDescription + ')]' + [System.Environment]::NewLine }
-    if ($data.AssemblyConfiguration -and $data.AssemblyConfiguration -ne '""') { assert ($data.AssemblyConfiguration -eq '""') "Unexpected AssemblyConfiguration in $($filename): $($data.AssemblyConfiguration)" }
-    if ($data.AssemblyCompany -and $data.AssemblyCompany -ne '""') { assert ($data.AssemblyCompany -eq '"Red Gate Software Ltd"') "Unexpected AssemblyCompany in $($filename): $($data.AssemblyCompany) instead of ""Red Gate Software Ltd""" }
+    if ($data.AssemblyConfiguration -and $data.AssemblyConfiguration -ne '""') { throw "Unexpected AssemblyConfiguration in $($filename): $($data.AssemblyConfiguration)" }
+    if ($data.AssemblyCompany -and $data.AssemblyCompany -ne '""' -and $data.AssemblyCompany -ne '"Red Gate Software Ltd"') { throw "Unexpected AssemblyCompany in $($filename): $($data.AssemblyCompany) instead of ""Red Gate Software Ltd""" }
     $output += '[assembly: AssemblyCompany("Red Gate Software Ltd")]' + [System.Environment]::NewLine
-    if ($data.AssemblyProduct -and $data.AssemblyProduct -ne '""' -and $data.AssemblyProduct -ne '"' + $ProjectName + '"') { assert ($data.AssemblyProduct -eq '"' + $ProductName + '"') "Unexpected AssemblyProduct in $($filename): $($data.AssemblyProduct) instead of ""$correctProductName""" }
+    if ($data.AssemblyProduct -and $data.AssemblyProduct -ne '""' -and $data.AssemblyProduct -ne '"' + $ProjectName + '"') { throw "Unexpected AssemblyProduct in $($filename): $($data.AssemblyProduct) instead of ""$correctProductName""" }
     $output += '[assembly: AssemblyProduct("' + $ProductName + '")]' + [System.Environment]::NewLine
-    if ($data.AssemblyCopyright -and $data.AssemblyCopyright -ne '""' -and -not $data.AssemblyCopyright -match '"Copyright ©  20[1-9][0-9]"') { assert ($data.AssemblyCopyright -match '"Copyright © Red Gate Software Ltd 20[1-9][0-9]"') "Unexpected AssemblyCopyright in $($filename): $($data.AssemblyCopyright) instead of ""Copyright © Red Gate Software Ltd $year""" }
+    if ($data.AssemblyCopyright -and $data.AssemblyCopyright -ne '""' -and -not $data.AssemblyCopyright -match '"Copyright ©  20[1-9][0-9]"' -and -not $data.AssemblyCopyright -match '"Copyright © Red Gate Software Ltd 20[1-9][0-9]"') { throw "Unexpected AssemblyCopyright in $($filename): $($data.AssemblyCopyright) instead of ""Copyright © Red Gate Software Ltd $year""" }
     $output += '[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd ' + $year + '")]' + [System.Environment]::NewLine
-    if ($data.AssemblyTrademark -and $data.AssemblyTrademark -ne '""') { assert ($data.AssemblyTrademark -eq '""') "Unexpected AssemblyTrademark in $($filename): $($data.AssemblyTrademark)" }
-    if ($data.AssemblyCulture -and $data.AssemblyCulture -ne '""') { assert ($data.AssemblyCulture -eq '""') "Unexpected AssemblyCulture in $($filename): $($data.AssemblyCulture)" }
+    if ($data.AssemblyTrademark -and $data.AssemblyTrademark -ne '""') { throw "Unexpected AssemblyTrademark in $($filename): $($data.AssemblyTrademark)" }
+    if ($data.AssemblyCulture -and $data.AssemblyCulture -ne '""') { throw "Unexpected AssemblyCulture in $($filename): $($data.AssemblyCulture)" }
 
     $output += [System.Environment]::NewLine
     $ComVisible = if ($data.ComVisible) { $data.ComVisible } else { 'false' }
     $output += '[assembly: ComVisible(' + $ComVisible + ')]' + [System.Environment]::NewLine
-    assert ($null -ne $data.Guid) "Guid not set in $filename"
+    if ($null -eq $data.Guid) { throw "Guid not set in $filename" }
     $output += '[assembly: Guid(' + $data.Guid + ')]' + [System.Environment]::NewLine
 
     if ($data.ThemeInfo) {
