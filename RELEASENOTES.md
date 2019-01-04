@@ -1,3 +1,7 @@
+# 1.2
+
+- New `Rewrite-AssemblyInfos` cmdlet that normalizes AssemblyInfo.cs files in a standardized way
+
 # 1.1
 
 - `Invoke-NUnit3ForAssembly` now accepts the optional `-ProcessIsolation` parameter, which sets NUnit's `--process` option
