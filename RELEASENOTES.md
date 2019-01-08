@@ -1,6 +1,7 @@
 # 1.3
 
 - `Invoke-NUnit3ForAssembly` now accepts the optional `-Timeout` parameter, which sets NUnit's `--timeout` option, setting a timeout for each test case in milliseconds.
+- `Rewrite-AssemblyInfos` now preserves AssemblyTitle and CLSCompliant.
 
 # 1.2
 
