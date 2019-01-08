@@ -49,7 +49,7 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
 .SYNOPSIS
   Rewrites an AssemblyInfo file in a standardized, opinionated way.
 .DESCRIPTION
-  Rewrites an AssemblyInfo file in a standardized, opinionated way. AssemblyTitle, AssemblyDescription, ComVisible, Guid, BootstrapperApplication, ThemeInfo, and InternalsVisibleTo are preserved, but all other properties are standardized. But, if the original AssemblyInfo.cs file contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes.
+  Rewrites an AssemblyInfo file in a standardized, opinionated way. AssemblyTitle, AssemblyDescription, ComVisible, Guid, CLSCompliant, BootstrapperApplication, ThemeInfo, and InternalsVisibleTo are preserved, but all other properties are standardized. But, if the original AssemblyInfo.cs file contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes.
 .NOTES
   This cmdlet standardises AssemblyInfo.cs properties to the following:
   AssemblyTitle = preserved if non-empty, otherwise project name
@@ -59,6 +59,7 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
   AssemblyCopyright = "Copyright © Red Gate Software Ltd <year from -Year>"
   ComVisible = preserved, or false if not present before
   Guid = preserved
+  CLSCompliant = preserved
   AssemblyVersion = version from -Version
   AssemblyFileVersion = version from -Version
   BootstrapperApplication = preserved
@@ -103,7 +104,7 @@ function Rewrite-AssemblyInfo {
         if ($line -match $UsingStatementRegex) { continue }
         if ($line -match $AssemblyAttributeSingleParameterRegex) {
             switch ($matches[1]) {
-                { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid') -contains $_ } {
+                { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid', 'CLSCompliant') -contains $_ } {
                     if ($null -ne $data[$_]) { throw "$_ is set multiple times in $filename" }
                     $data[$_] = $matches[2]
                 }
@@ -162,6 +163,10 @@ function Rewrite-AssemblyInfo {
     }
     else {
         $output += '[assembly: Guid(' + $data.Guid + ')]' + [System.Environment]::NewLine
+    }
+    
+    if ($data.CLSCompliant) {
+        $output += '[assembly: CLSCompliant(' + $data.CLSCompliant + ')]' + [System.Environment]::NewLine
     }
 
     if ($data.ThemeInfo) {
