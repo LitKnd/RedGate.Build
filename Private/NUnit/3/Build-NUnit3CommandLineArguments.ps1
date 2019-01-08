@@ -4,6 +4,7 @@ function Build-NUnit3CommandLineArguments {
         [Parameter(Mandatory=$true)]
         [string] $AssemblyPath,
         [bool] $x86,
+        [int] $Timeout,
         [string] $FrameworkVersion,
         [string] $Where,
         [string] $TestResultFilenamePattern = 'TestResult',
@@ -20,6 +21,10 @@ function Build-NUnit3CommandLineArguments {
         $params += "--x86"
     }
 
+    if ($Timeout) {
+        $params += "--timeout=$Timeout"
+    }
+
     if ($FrameworkVersion) {
         $params += "--framework=$FrameworkVersion"
     }
@@ -31,6 +36,6 @@ function Build-NUnit3CommandLineArguments {
     if ($ProcessIsolation) {
         $params += "--process=$ProcessIsolation"
     }
-
+    
     return $params
 }

@@ -267,6 +267,46 @@ using System.Runtime.InteropServices;
             $actualOutput | Should Be $expectedOutput
         }
     }
+    Context 'Custom AssemblyTitle' {
+        $initialAssemblyInfo = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("SQL Dummy Engine")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2018")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+"@
+        $expectedOutput = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("SQL Dummy Engine")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2019")]
+
+[assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+"@
+        It 'AssemblyTitle should be preserved' {
+            $filename = (New-TemporaryFile).FullName
+            $initialAssemblyInfo | Out-File $filename -Encoding UTF8
+            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary2' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary2' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
+            $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
+            $actualOutput | Should Be $expectedOutput
+        }
+    }
     Context 'ComVisible set to true' {
         $initialAssemblyInfo = @"
 using System.Reflection;
@@ -301,6 +341,48 @@ using System.Runtime.InteropServices;
 
 "@
         It 'ComVisible should be preserved' {
+            $filename = (New-TemporaryFile).FullName
+            $initialAssemblyInfo | Out-File $filename -Encoding UTF8
+            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary3' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary3' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
+            $actualOutput = Get-Content $filename -Raw -Encoding UTF8
+            Remove-Item $filename
+            $actualOutput | Should Be $expectedOutput
+        }
+    }
+    Context 'CLSCompliant set to true' {
+        $initialAssemblyInfo = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("ClassLibrary3")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2018")]
+
+[assembly: ComVisible(false)]
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+"@
+        $expectedOutput = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("ClassLibrary3")]
+[assembly: AssemblyCompany("Red Gate Software Ltd")]
+[assembly: AssemblyProduct("SQL Dummy")]
+[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd 2019")]
+
+[assembly: ComVisible(false)]
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyFileVersion("1.2.3.456")]
+
+"@
+        It 'CLSCompliant should be preserved' {
             $filename = (New-TemporaryFile).FullName
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'ClassLibrary3' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary3' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
@@ -348,7 +430,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 "@
-        It 'AssemblyDescription should be preserved' {
+        It 'InternalsVisibleTo should be preserved' {
             $filename = (New-TemporaryFile).FullName
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
             Rewrite-AssemblyInfo -ProjectName 'ClassLibrary4' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary4' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'

@@ -49,18 +49,19 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
 .SYNOPSIS
   Rewrites an AssemblyInfo file in a standardized, opinionated way.
 .DESCRIPTION
-  Rewrites an AssemblyInfo file in a standardized, opinionated way. AssemblyDescription, ComVisible, Guid, BootstrapperApplication, ThemeInfo, and InternalsVisibleTo are preserved, but all other properties are standardized. But, if the original AssemblyInfo.cs file contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes.
+  Rewrites an AssemblyInfo file in a standardized, opinionated way. AssemblyTitle, AssemblyDescription, ComVisible, Guid, CLSCompliant, BootstrapperApplication, ThemeInfo, and InternalsVisibleTo are preserved, but all other properties are standardized. But, if the original AssemblyInfo.cs file contains unexpected/custom contents, then this cmdlet will throw an error, to avoid overriding intended changes.
 .NOTES
   This cmdlet standardises AssemblyInfo.cs properties to the following:
-  AssemblyTitle = project name
+  AssemblyTitle = preserved if non-empty, otherwise project name
   AssemblyDescription = preserved
   AssemblyCompany = "Red Gate Software Ltd"
-  AssemblyProduct = product name from -ProductName or -ProductNameOverrides
+  AssemblyProduct = product name from -ProductName
   AssemblyCopyright = "Copyright © Red Gate Software Ltd <year from -Year>"
   ComVisible = preserved, or false if not present before
   Guid = preserved
-  AssemblyVersion = version from -Version or -VersionOverrides
-  AssemblyFileVersion = version from -Version or -VersionOverrides
+  CLSCompliant = preserved
+  AssemblyVersion = version from -Version
+  AssemblyFileVersion = version from -Version
   BootstrapperApplication = preserved
   ThemeInfo = preserved
   InternalsVisibleTo = preserved
@@ -103,7 +104,7 @@ function Rewrite-AssemblyInfo {
         if ($line -match $UsingStatementRegex) { continue }
         if ($line -match $AssemblyAttributeSingleParameterRegex) {
             switch ($matches[1]) {
-                { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid') -contains $_ } {
+                { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid', 'CLSCompliant') -contains $_ } {
                     if ($null -ne $data[$_]) { throw "$_ is set multiple times in $filename" }
                     $data[$_] = $matches[2]
                 }
@@ -137,8 +138,12 @@ function Rewrite-AssemblyInfo {
     $output = $usings | Where-Object { $_.StartsWith('System.') } | ForEach-Object { "using $_;" } | out-string
     $output += $usings | Where-Object { -not $_.StartsWith('System.') } | ForEach-Object { "using $_;" } | out-string
     $output += [System.Environment]::NewLine
-    if ($data.AssemblyTitle -and $data.AssemblyTitle -ne '"' + $ProjectName + '"') { throw "Unexpected AssemblyTitle in $($filename): $($data.AssemblyTitle) instead of ""$ProjectName""" }
-    $output += '[assembly: AssemblyTitle("' + $ProjectName + '")]' + [System.Environment]::NewLine
+    if ($data.AssemblyTitle -and $data.AssemblyTitle -ne '""') {
+        $output += '[assembly: AssemblyTitle(' + $data.AssemblyTitle + ')]' + [System.Environment]::NewLine
+    }
+    else {
+        $output += '[assembly: AssemblyTitle("' + $ProjectName + '")]' + [System.Environment]::NewLine
+    }
     if ($data.AssemblyDescription -and $data.AssemblyDescription -ne '""') { $output += '[assembly: AssemblyDescription(' + $data.AssemblyDescription + ')]' + [System.Environment]::NewLine }
     if ($data.AssemblyConfiguration -and $data.AssemblyConfiguration -ne '""') { throw "Unexpected AssemblyConfiguration in $($filename): $($data.AssemblyConfiguration)" }
     if ($data.AssemblyCompany -and $data.AssemblyCompany -ne '""' -and $data.AssemblyCompany -ne '"Red Gate Software Ltd"') { throw "Unexpected AssemblyCompany in $($filename): $($data.AssemblyCompany) instead of ""Red Gate Software Ltd""" }
@@ -158,6 +163,10 @@ function Rewrite-AssemblyInfo {
     }
     else {
         $output += '[assembly: Guid(' + $data.Guid + ')]' + [System.Environment]::NewLine
+    }
+    
+    if ($data.CLSCompliant) {
+        $output += '[assembly: CLSCompliant(' + $data.CLSCompliant + ')]' + [System.Environment]::NewLine
     }
 
     if ($data.ThemeInfo) {
