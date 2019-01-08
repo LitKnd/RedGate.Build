@@ -25,7 +25,9 @@ function Invoke-NUnit3ForAssembly {
     [string] $NUnitVersion = '3.0.0',
     # If specified, pass --x86 to nunit3-console
     [switch] $x86,
-    # If specified, the framework version to be used for tests. (pass --framework=XX to nunit3-console). e.g. 'net-4.6', 'net-4.7'
+    # If specified, the timeout for each test case in milliseconds. (passes --timeout=XX to nunit3-console.)
+    [int] $Timeout,
+    # If specified, the framework version to be used for tests. (passes --framework=XX to nunit3-console.) e.g. 'net-4.6', 'net-4.7'
     [string] $FrameworkVersion = $null,
     # NUnit3 Test selection EXPRESSION indicating what tests will be run
     # example: "method =~ /DataTest*/ && cat = Slow"
@@ -66,6 +68,7 @@ function Invoke-NUnit3ForAssembly {
     $NunitArguments = Build-NUnit3CommandLineArguments `
       -AssemblyPath $AssemblyPath `
       -x86 $x86.IsPresent `
+      -Timeout $Timeout `
       -Where $Where `
       -FrameworkVersion $FrameworkVersion `
       -TestResultFilenamePattern $TestResultFilenamePattern `

@@ -23,13 +23,14 @@ Describe 'Build-NUnit3CommandLineArguments' {
         $result = Build-NUnit3CommandLineArguments `
             -AssemblyPath 'my-test-assembly.dll' `
             -x86 $true `
+            -Timeout 30000 `
             -FrameworkVersion 'net-4.0' `
             -Where 'mywherecondition' `
             -TestResultFilenamePattern 'SpecialPattern' `
             -ProcessIsolation 'Single'
 
         It 'should return the right value' {
-            $result -join ' ' | Should Be "$(Nunit3Parameters 'my-test-assembly.dll' 'SpecialPattern') --x86 --framework=net-4.0 --where=mywherecondition --process=Single"
+            $result -join ' ' | Should Be "$(Nunit3Parameters 'my-test-assembly.dll' 'SpecialPattern') --x86 --timeout=30000 --framework=net-4.0 --where=mywherecondition --process=Single"
         }
     }
 
