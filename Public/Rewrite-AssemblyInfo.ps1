@@ -106,6 +106,7 @@ function Rewrite-AssemblyInfo {
             switch ($matches[1]) {
                 { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid', 'CLSCompliant') -contains $_ } {
                     if ($null -ne $data[$_]) { throw "$_ is set multiple times in $filename" }
+                    if ($_ -eq 'CLSCompliant') { $usings.Add('System') | Out-Null }
                     $data[$_] = $matches[2]
                 }
                 BootstrapperApplication {
@@ -135,8 +136,8 @@ function Rewrite-AssemblyInfo {
         throw "Unexpected line in $($filename):" + [System.Environment]::NewLine + $line
     }
     
-    $output = $usings | Where-Object { $_.StartsWith('System.') } | ForEach-Object { "using $_;" } | out-string
-    $output += $usings | Where-Object { -not $_.StartsWith('System.') } | ForEach-Object { "using $_;" } | out-string
+    $output = $usings | Where-Object { $_.StartsWith('System.') -or $_ -eq 'System' } | ForEach-Object { "using $_;" } | out-string
+    $output += $usings | Where-Object { -not $_.StartsWith('System.') -and $_ -ne 'System' } | ForEach-Object { "using $_;" } | out-string
     $output += [System.Environment]::NewLine
     if ($data.AssemblyTitle -and $data.AssemblyTitle -ne '""') {
         $output += '[assembly: AssemblyTitle(' + $data.AssemblyTitle + ')]' + [System.Environment]::NewLine

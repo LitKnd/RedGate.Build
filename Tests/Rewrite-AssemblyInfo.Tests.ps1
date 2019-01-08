@@ -351,6 +351,7 @@ using System.Runtime.InteropServices;
     }
     Context 'CLSCompliant set to true' {
         $initialAssemblyInfo = @"
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -367,6 +368,7 @@ using System.Runtime.InteropServices;
 
 "@
         $expectedOutput = @"
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
