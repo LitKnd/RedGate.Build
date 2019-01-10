@@ -1,3 +1,7 @@
+# 1.4
+
+- `Rewrite-AssemblyInfos` now writes out AssemblyInformationalVersion attribute, and takes an -InfoVersionSuffix parameter that adds a suffix to it.
+
 # 1.3
 
 - `Invoke-NUnit3ForAssembly` now accepts the optional `-Timeout` parameter, which sets NUnit's `--timeout` option, setting a timeout for each test case in milliseconds.
