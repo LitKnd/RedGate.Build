@@ -9,6 +9,8 @@
   The name of the product, eg 'SQL Clone'.
 .PARAMETER Version
   The version of the product.
+.PARAMETER InfoVersionSuffix
+  The suffix to add to -Version to make the informational version. Typically set to '-<branch name>' for non-default branches.
 .PARAMETER Year
   The copyright year.
 .PARAMETER ProductNameOverrides
@@ -39,6 +41,7 @@ function Rewrite-AssemblyInfos {
         [Parameter(Mandatory = $true)][string] $SolutionFile,
         [Parameter(Mandatory = $true)][string] $ProductName,
         [Parameter(Mandatory = $true)][System.Version] $Version,
+        [Parameter(Mandatory = $false)][string] $InfoVersionSuffix,
         [Parameter(Mandatory = $true)][int] $Year,
         [Parameter(Mandatory = $false)][Hashtable] $ProductNameOverrides,
         [Parameter(Mandatory = $false)][Hashtable] $VersionOverrides
@@ -61,7 +64,8 @@ $($missingAssemblyInfos | Out-String)
         $projectname = $xml.Project.PropertyGroup.AssemblyName | Where-Object { $_ }
         $rootnamespace = $xml.Project.PropertyGroup.RootNamespace | Where-Object { $_ }
         $v = if ($VersionOverrides -and $VersionOverrides[$ProjectName]) { $VersionOverrides[$ProjectName] } else { $Version }
+        $infoVersion = if ($InfoVersionSuffix) { "$v$InfoVersionSuffix" } else { "$v" }
         $thisproductname = if ($ProductNameOverrides -and $ProductNameOverrides[$ProjectName]) { $ProductNameOverrides[$ProjectName] } else { $ProductName }
-        Rewrite-AssemblyInfo -ProjectName $projectname -ProductName $thisproductname -RootNamespace $rootnamespace -AssemblyInfoPath $_.AssemblyInfo -Version $v -Year $year
+        Rewrite-AssemblyInfo -ProjectName $projectname -ProductName $thisproductname -RootNamespace $rootnamespace -AssemblyInfoPath $_.AssemblyInfo -Version $v -InfoVersion $infoVersion -Year $year
     }
 }
