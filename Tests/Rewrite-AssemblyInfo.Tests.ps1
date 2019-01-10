@@ -55,12 +55,13 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456-branch-suffix")]
 
 "@
         It 'Should rewrite minimal AssemblyInfo.cs' {
             $filename = (New-TemporaryFile).FullName
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
-            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary1' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary1' -AssemblyInfoPath $filename -Version '1.2.3.456' -Year '2019'
+            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary1' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary1' -AssemblyInfoPath $filename -Version '1.2.3.456' -InfoVersion '1.2.3.456-branch-suffix' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
             Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
@@ -141,6 +142,7 @@ using System.Windows;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         It 'Should rewrite minimal AssemblyInfo.cs' {
@@ -214,6 +216,7 @@ using RedGate.SqlClone.Installer.BootstrapperApplication;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         It 'Should rewrite minimal AssemblyInfo.cs' {
@@ -240,6 +243,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         $expectedOutput = @"
@@ -256,6 +260,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         It 'AssemblyDescription should be preserved' {
@@ -281,6 +286,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         $expectedOutput = @"
@@ -296,6 +302,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         It 'AssemblyTitle should be preserved' {
@@ -322,6 +329,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         $expectedOutput = @"
@@ -338,6 +346,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         It 'ComVisible should be preserved' {
@@ -365,6 +374,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         $expectedOutput = @"
@@ -382,6 +392,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         It 'CLSCompliant should be preserved' {
@@ -408,6 +419,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 [assembly: InternalsVisibleTo("ClassLibrary2")]
@@ -427,6 +439,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 [assembly: InternalsVisibleTo("ClassLibrary2")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -458,6 +471,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
         It 'Should write minimal AssemblyInfo.cs' {

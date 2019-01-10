@@ -113,6 +113,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
     $expectedDifferentProductProjectAssemblyInfo = @"
@@ -128,6 +129,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.2.3.456")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
+[assembly: AssemblyInformationalVersion("1.2.3.456")]
 
 "@
     $expectedDifferentVersionProjectAssemblyInfo = @"
@@ -143,6 +145,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("2.3.4.567")]
 [assembly: AssemblyFileVersion("2.3.4.567")]
+[assembly: AssemblyInformationalVersion("2.3.4.567")]
 
 "@
     $productNameOverrides = @{
