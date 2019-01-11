@@ -158,7 +158,7 @@ function Rewrite-AssemblyInfo {
     $output += '[assembly: AssemblyCompany("Red Gate Software Ltd")]' + [System.Environment]::NewLine
     if ($data.AssemblyProduct -and $data.AssemblyProduct -ne '""' -and $data.AssemblyProduct -ne '"' + $EscapedProjectName + '"' -and $data.AssemblyProduct -ne '"' + $EscapedProductName + '"') { throw "Unexpected AssemblyProduct in $($filename): $($data.AssemblyProduct) instead of ""$EscapedProductName""" }
     $output += '[assembly: AssemblyProduct("' + $EscapedProductName + '")]' + [System.Environment]::NewLine
-    if ($data.AssemblyCopyright -and $data.AssemblyCopyright -ne '""' -and -not $data.AssemblyCopyright -match '"Copyright ©  20[1-9][0-9]"' -and -not $data.AssemblyCopyright -match '"Copyright © Red Gate Software Ltd 20[1-9][0-9]"') { throw "Unexpected AssemblyCopyright in $($filename): $($data.AssemblyCopyright) instead of ""Copyright © Red Gate Software Ltd $year""" }
+    if ($data.AssemblyCopyright -and $data.AssemblyCopyright -ne '""' -and -not $data.AssemblyCopyright -match '"Copyright ©  20[1-9][0-9]"' -and -not $data.AssemblyCopyright -match '"Copyright © Red Gate Software Ltd( 20[1-9][0-9])?"') { throw "Unexpected AssemblyCopyright in $($filename): $($data.AssemblyCopyright) instead of ""Copyright © Red Gate Software Ltd $year""" }
     $output += '[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd ' + $year + '")]' + [System.Environment]::NewLine
     if ($data.AssemblyTrademark -and $data.AssemblyTrademark -ne '""') { throw "Unexpected AssemblyTrademark in $($filename): $($data.AssemblyTrademark)" }
     if ($data.AssemblyCulture -and $data.AssemblyCulture -ne '""') { throw "Unexpected AssemblyCulture in $($filename): $($data.AssemblyCulture)" }
