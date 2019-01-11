@@ -140,6 +140,9 @@ function Rewrite-AssemblyInfo {
         throw "Unexpected line in $($filename):" + [System.Environment]::NewLine + $line
     }
     
+    $EscapedProductName = ConvertTo-CSharpEscaped $ProductName
+    $EscapedProjectName = ConvertTo-CSharpEscaped $ProjectName
+    
     $output = $usings | Where-Object { $_.StartsWith('System.') -or $_ -eq 'System' } | ForEach-Object { "using $_;" } | out-string
     $output += $usings | Where-Object { -not $_.StartsWith('System.') -and $_ -ne 'System' } | ForEach-Object { "using $_;" } | out-string
     $output += [System.Environment]::NewLine
@@ -147,15 +150,15 @@ function Rewrite-AssemblyInfo {
         $output += '[assembly: AssemblyTitle(' + $data.AssemblyTitle + ')]' + [System.Environment]::NewLine
     }
     else {
-        $output += '[assembly: AssemblyTitle("' + $ProjectName + '")]' + [System.Environment]::NewLine
+        $output += '[assembly: AssemblyTitle("' + $EscapedProjectName + '")]' + [System.Environment]::NewLine
     }
     if ($data.AssemblyDescription -and $data.AssemblyDescription -ne '""') { $output += '[assembly: AssemblyDescription(' + $data.AssemblyDescription + ')]' + [System.Environment]::NewLine }
     if ($data.AssemblyConfiguration -and $data.AssemblyConfiguration -ne '""') { throw "Unexpected AssemblyConfiguration in $($filename): $($data.AssemblyConfiguration)" }
     if ($data.AssemblyCompany -and $data.AssemblyCompany -ne '""' -and $data.AssemblyCompany -ne '"Red Gate Software Ltd"') { throw "Unexpected AssemblyCompany in $($filename): $($data.AssemblyCompany) instead of ""Red Gate Software Ltd""" }
     $output += '[assembly: AssemblyCompany("Red Gate Software Ltd")]' + [System.Environment]::NewLine
-    if ($data.AssemblyProduct -and $data.AssemblyProduct -ne '""' -and $data.AssemblyProduct -ne '"' + $ProjectName + '"' -and $data.AssemblyProduct -ne '"' + $ProductName + '"') { throw "Unexpected AssemblyProduct in $($filename): $($data.AssemblyProduct) instead of ""$ProductName""" }
-    $output += '[assembly: AssemblyProduct("' + $ProductName + '")]' + [System.Environment]::NewLine
-    if ($data.AssemblyCopyright -and $data.AssemblyCopyright -ne '""' -and -not $data.AssemblyCopyright -match '"Copyright ©  20[1-9][0-9]"' -and -not $data.AssemblyCopyright -match '"Copyright © Red Gate Software Ltd 20[1-9][0-9]"') { throw "Unexpected AssemblyCopyright in $($filename): $($data.AssemblyCopyright) instead of ""Copyright © Red Gate Software Ltd $year""" }
+    if ($data.AssemblyProduct -and $data.AssemblyProduct -ne '""' -and $data.AssemblyProduct -ne '"' + $EscapedProjectName + '"' -and $data.AssemblyProduct -ne '"' + $EscapedProductName + '"') { throw "Unexpected AssemblyProduct in $($filename): $($data.AssemblyProduct) instead of ""$EscapedProductName""" }
+    $output += '[assembly: AssemblyProduct("' + $EscapedProductName + '")]' + [System.Environment]::NewLine
+    if ($data.AssemblyCopyright -and $data.AssemblyCopyright -ne '""' -and -not $data.AssemblyCopyright -match '"Copyright ©  20[1-9][0-9]"' -and -not $data.AssemblyCopyright -match '"Copyright © Red Gate Software Ltd( 20[1-9][0-9])?"') { throw "Unexpected AssemblyCopyright in $($filename): $($data.AssemblyCopyright) instead of ""Copyright © Red Gate Software Ltd $year""" }
     $output += '[assembly: AssemblyCopyright("Copyright © Red Gate Software Ltd ' + $year + '")]' + [System.Environment]::NewLine
     if ($data.AssemblyTrademark -and $data.AssemblyTrademark -ne '""') { throw "Unexpected AssemblyTrademark in $($filename): $($data.AssemblyTrademark)" }
     if ($data.AssemblyCulture -and $data.AssemblyCulture -ne '""') { throw "Unexpected AssemblyCulture in $($filename): $($data.AssemblyCulture)" }
@@ -183,14 +186,15 @@ function Rewrite-AssemblyInfo {
     }
 
     if (!$InfoVersion) {
-        $InfoVersion = $Version
+        $InfoVersion = [string] $Version
     }
+    $EscapedInfoVersion = ConvertTo-CSharpEscaped $InfoVersion
     
     $output += @"
 
 [assembly: AssemblyVersion("$Version")]
 [assembly: AssemblyFileVersion("$Version")]
-[assembly: AssemblyInformationalVersion("$InfoVersion")]
+[assembly: AssemblyInformationalVersion("$EscapedInfoVersion")]
 
 "@
 
