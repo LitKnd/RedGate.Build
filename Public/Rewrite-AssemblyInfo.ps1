@@ -62,6 +62,7 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
   CLSCompliant = preserved
   AssemblyVersion = version from -Version
   AssemblyFileVersion = version from -Version
+  AssemblyInformationalVersion = version from -InfoVersion if it is set, otherwise version from -Version
   BootstrapperApplication = preserved
   ThemeInfo = preserved
   InternalsVisibleTo = preserved
@@ -75,6 +76,8 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
   The path of the AssemblyInfo.cs file to rewrite.
 .PARAMETER Version
   The version of the assembly.
+.PARAMETER InfoVersion
+  The informational version of the assembly.
 .PARAMETER Year
   The copyright year.
 #>
@@ -86,6 +89,7 @@ function Rewrite-AssemblyInfo {
         [Parameter(Mandatory = $false)][string] $RootNamespace,
         [Parameter(Mandatory = $true)][string] $AssemblyInfoPath,
         [Parameter(Mandatory = $true)][System.Version] $Version,
+        [Parameter(Mandatory = $false)][string] $InfoVersion,
         [Parameter(Mandatory = $true)][int] $Year
     )
     
@@ -104,7 +108,7 @@ function Rewrite-AssemblyInfo {
         if ($line -match $UsingStatementRegex) { continue }
         if ($line -match $AssemblyAttributeSingleParameterRegex) {
             switch ($matches[1]) {
-                { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid', 'CLSCompliant') -contains $_ } {
+                { @('AssemblyCompany', 'AssemblyConfiguration', 'AssemblyCopyright', 'AssemblyCulture', 'AssemblyDescription', 'AssemblyFileVersion', 'AssemblyInformationalVersion', 'AssemblyProduct', 'AssemblyTitle', 'AssemblyTrademark', 'AssemblyVersion', 'ComVisible', 'Guid', 'CLSCompliant') -contains $_ } {
                     if ($null -ne $data[$_]) { throw "$_ is set multiple times in $filename" }
                     if ($_ -eq 'CLSCompliant') { $usings.Add('System') | Out-Null }
                     $data[$_] = $matches[2]
@@ -178,10 +182,15 @@ function Rewrite-AssemblyInfo {
         $output += [System.Environment]::NewLine + '[assembly: BootstrapperApplication(' + $data.BootstrapperApplication + ')]' + [System.Environment]::NewLine
     }
 
+    if (!$InfoVersion) {
+        $InfoVersion = $Version
+    }
+    
     $output += @"
 
 [assembly: AssemblyVersion("$Version")]
 [assembly: AssemblyFileVersion("$Version")]
+[assembly: AssemblyInformationalVersion("$InfoVersion")]
 
 "@
 
