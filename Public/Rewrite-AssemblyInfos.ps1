@@ -40,7 +40,8 @@ function Rewrite-AssemblyInfos {
     param (
         [Parameter(Mandatory = $true)][string] $SolutionFile,
         [Parameter(Mandatory = $true)][string] $ProductName,
-        [Parameter(Mandatory = $true)][System.Version] $Version,
+        [Parameter(Mandatory = $true)][Version] $Version,
+        [Switch] $AssemblyVersionMajorOnly,
         [Parameter(Mandatory = $false)][string] $InfoVersionSuffix,
         [Parameter(Mandatory = $true)][int] $Year,
         [Parameter(Mandatory = $false)][Hashtable] $ProductNameOverrides,
@@ -63,9 +64,10 @@ $($missingAssemblyInfos | Out-String)
         $xml = [xml] (Get-Content $_.Project)
         $projectname = $xml.Project.PropertyGroup.AssemblyName | Where-Object { $_ }
         $rootnamespace = $xml.Project.PropertyGroup.RootNamespace | Where-Object { $_ }
-        $v = if ($VersionOverrides -and $VersionOverrides[$ProjectName]) { $VersionOverrides[$ProjectName] } else { $Version }
+        $v = if ($VersionOverrides -and $VersionOverrides[$ProjectName]) { [Version] $VersionOverrides[$ProjectName] } else { $Version }
+        $assemblyVersion = if ($AssemblyVersionMajorOnly) { [Version] "$($v.Major).0.0.0" } else { $v }
         $infoVersion = if ($InfoVersionSuffix) { "$v$InfoVersionSuffix" } else { "$v" }
         $thisproductname = if ($ProductNameOverrides -and $ProductNameOverrides[$ProjectName]) { $ProductNameOverrides[$ProjectName] } else { $ProductName }
-        Rewrite-AssemblyInfo -ProjectName $projectname -ProductName $thisproductname -RootNamespace $rootnamespace -AssemblyInfoPath $_.AssemblyInfo -Version $v -InfoVersion $infoVersion -Year $year
+        Rewrite-AssemblyInfo -ProjectName $projectname -ProductName $thisproductname -RootNamespace $rootnamespace -AssemblyInfoPath $_.AssemblyInfo -Version $v -AssemblyVersion $assemblyVersion -InfoVersion $infoVersion -Year $year
     }
 }

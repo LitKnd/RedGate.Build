@@ -111,7 +111,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
 [assembly: AssemblyInformationalVersion("1.2.3.456-branch-name")]
 
@@ -127,7 +127,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
 [assembly: AssemblyInformationalVersion("1.2.3.456-branch-name")]
 
@@ -143,7 +143,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("2.3.4.567")]
+[assembly: AssemblyVersion("2.0.0.0")]
 [assembly: AssemblyFileVersion("2.3.4.567")]
 [assembly: AssemblyInformationalVersion("2.3.4.567-branch-name")]
 
@@ -154,7 +154,7 @@ using System.Runtime.InteropServices;
     $versionOverrides = @{
         $differentVersionProjectName = [Version] '2.3.4.567'
     }
-    Rewrite-AssemblyInfos -SolutionFile $solutionFile -ProductName 'SQL Dummy' -Version '1.2.3.456' -InfoVersionSuffix '-branch-name' -Year '2019' -ProductNameOverrides $productNameOverrides -VersionOverrides $versionOverrides
+    Rewrite-AssemblyInfos -SolutionFile $solutionFile -ProductName 'SQL Dummy' -Version '1.2.3.456' -AssemblyVersionMajorOnly -InfoVersionSuffix '-branch-name' -Year '2019' -ProductNameOverrides $productNameOverrides -VersionOverrides $versionOverrides
     It 'AssemblyInfo for normal project should be rewritten normally' {
         $actualNormalProjectAssemblyInfo = Get-Content $normalProjectAssemblyInfo -Raw -Encoding UTF8
         $actualNormalProjectAssemblyInfo | Should Be $expectedNormalProjectAssemblyInfo

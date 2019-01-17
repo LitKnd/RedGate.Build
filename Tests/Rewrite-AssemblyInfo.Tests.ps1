@@ -53,7 +53,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("7b9e7270-e52f-4029-92cf-467917f81886")]
 
-[assembly: AssemblyVersion("1.2.3.456")]
+[assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.2.3.456")]
 [assembly: AssemblyInformationalVersion("1.2.3.456-branch-suffix")]
 
@@ -61,7 +61,7 @@ using System.Runtime.InteropServices;
         It 'Should rewrite minimal AssemblyInfo.cs' {
             $filename = (New-TemporaryFile).FullName
             $initialAssemblyInfo | Out-File $filename -Encoding UTF8
-            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary1' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary1' -AssemblyInfoPath $filename -Version '1.2.3.456' -InfoVersion '1.2.3.456-branch-suffix' -Year '2019'
+            Rewrite-AssemblyInfo -ProjectName 'ClassLibrary1' -ProductName 'SQL Dummy' -RootNamespace 'ClassLibrary1' -AssemblyInfoPath $filename -Version '1.2.3.456' -AssemblyVersion '1.0.0.0' -InfoVersion '1.2.3.456-branch-suffix' -Year '2019'
             $actualOutput = Get-Content $filename -Raw -Encoding UTF8
             Remove-Item $filename
             $actualOutput | Should Be $expectedOutput
