@@ -1,3 +1,7 @@
+# 1.5
+
+- `Rewrite-AssemblyInfos` now takes a `-AssemblyVersionMajorOnly` switch, which sets `AssemblyVersion` to have the major version from `-Version` and all other version parts to 0. `AssemblyFileVersion` is still always set from `-Version`.
+
 # 1.4
 
 - `Rewrite-AssemblyInfos` now writes out AssemblyInformationalVersion attribute, and takes an -InfoVersionSuffix parameter that adds a suffix to it.
