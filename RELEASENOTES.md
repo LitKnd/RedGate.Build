@@ -1,6 +1,6 @@
 # 1.5
 
-- `Rewrite-AssemblyInfos` now takes a `-AssemblyVersionMajorOnly` switch, which sets `AssemblyVersion` to have the major version from `-Version` and all other version parts to 0. `AssemblyFileVersion` is still always set from `-Version`.
+- `Rewrite-AssemblyInfos` now takes an `-AssemblyVersionMajorOnly` switch, which sets `AssemblyVersion` to be "MAJOR.0.0.0", where MAJOR is the major version of the project. `AssemblyFileVersion` is still always set to the full version of the project.
 
 # 1.4
 
