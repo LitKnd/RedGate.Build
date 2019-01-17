@@ -73,7 +73,7 @@ task GenerateVersionInfo ImportModules, {
 # Synopsis: Create the RedGate.Build nuget package
 task Pack GenerateVersionInfo, {
 
-    $escapedReleaseNotes = $Notes.Content -replace '"','\"'
+    $escapedReleaseNotes = $Notes.Content -replace '"','\"' -replace '`',''
 
     exec {
         & $NugetExe pack $PSScriptRoot\RedGate.Build.nuspec `
