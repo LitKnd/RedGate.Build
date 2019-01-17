@@ -41,6 +41,13 @@ function CollapseDefaultThemeInfoToOneLine([String] $assemblyInfo) {
         -replace '(?m)^\s*\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(ResourceDictionaryLocation\.(None|SourceAssembly|ExternalAssembly))\s*,\s*(ResourceDictionaryLocation\.(None|SourceAssembly|ExternalAssembly))\s*\)\s*\]\s*$', '[assembly: ThemeInfo($1, $3)]'
 }
 
+function FourPartVersion([Version] $v) {
+    if ($v.Minor -lt 0) { return [Version] "$v.0.0.0" }
+    if ($v.Build -lt 0) { return [Version] "$v.0.0" }
+    if ($v.Revision -lt 0) { return [Version] "$v.0" }
+    return $v
+}
+
 $UsingStatementRegex = '^using\s+[\w.]+\s*;$'
 $AssemblyAttributeSingleParameterRegex = '^\[\s*assembly\s*:\s*(\w+)\s*\(\s*(\w*|typeof\(\w+\)|"([^"\\])*")\s*\)\s*\]$'
 $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(ResourceDictionaryLocation\.(None|SourceAssembly|ExternalAssembly))\s*,\s*(ResourceDictionaryLocation\.(None|SourceAssembly|ExternalAssembly))\s*\)\s*\]$'
@@ -60,7 +67,7 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
   ComVisible = preserved, or false if not present before
   Guid = preserved
   CLSCompliant = preserved
-  AssemblyVersion = version from -Version
+  AssemblyVersion = version from -AssemblyVersion if set, otherwise version from -Version
   AssemblyFileVersion = version from -Version
   AssemblyInformationalVersion = version from -InfoVersion if it is set, otherwise version from -Version
   BootstrapperApplication = preserved
@@ -75,9 +82,11 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
 .PARAMETER AssemblyInfoPath
   The path of the AssemblyInfo.cs file to rewrite.
 .PARAMETER Version
-  The version of the assembly.
+  The file version of the assembly (AssemblyFileVersion).
+.PARAMETER AssemblyVersion
+  The .NET version of the assembly (AssemblyVersion).
 .PARAMETER InfoVersion
-  The informational version of the assembly.
+  The informational version of the assembly (AssemblyInformationalVersion).
 .PARAMETER Year
   The copyright year.
 #>
@@ -88,7 +97,8 @@ function Rewrite-AssemblyInfo {
         [Parameter(Mandatory = $true)][string] $ProductName,
         [Parameter(Mandatory = $false)][string] $RootNamespace,
         [Parameter(Mandatory = $true)][string] $AssemblyInfoPath,
-        [Parameter(Mandatory = $true)][System.Version] $Version,
+        [Parameter(Mandatory = $true)][Version] $Version,
+        [Parameter(Mandatory = $false)][Version] $AssemblyVersion,
         [Parameter(Mandatory = $false)][string] $InfoVersion,
         [Parameter(Mandatory = $true)][int] $Year
     )
@@ -185,14 +195,16 @@ function Rewrite-AssemblyInfo {
         $output += [System.Environment]::NewLine + '[assembly: BootstrapperApplication(' + $data.BootstrapperApplication + ')]' + [System.Environment]::NewLine
     }
 
+    $AssemblyVersion = if ($AssemblyVersion) { FourPartVersion($AssemblyVersion) } else { FourPartVersion($Version) }
+
     if (!$InfoVersion) {
-        $InfoVersion = [string] $Version
+        $InfoVersion = "$Version"
     }
     $EscapedInfoVersion = ConvertTo-CSharpEscaped $InfoVersion
     
     $output += @"
 
-[assembly: AssemblyVersion("$Version")]
+[assembly: AssemblyVersion("$AssemblyVersion")]
 [assembly: AssemblyFileVersion("$Version")]
 [assembly: AssemblyInformationalVersion("$EscapedInfoVersion")]
 
