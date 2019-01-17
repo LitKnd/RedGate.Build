@@ -82,9 +82,11 @@ $AssemblyAttributeThemeInfoRegex = '^\[\s*assembly\s*:\s*ThemeInfo\s*\(\s*(Resou
 .PARAMETER AssemblyInfoPath
   The path of the AssemblyInfo.cs file to rewrite.
 .PARAMETER Version
-  The version of the assembly.
+  The file version of the assembly (AssemblyFileVersion).
+.PARAMETER AssemblyVersion
+  The .NET version of the assembly (AssemblyVersion).
 .PARAMETER InfoVersion
-  The informational version of the assembly.
+  The informational version of the assembly (AssemblyInformationalVersion).
 .PARAMETER Year
   The copyright year.
 #>

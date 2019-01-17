@@ -9,6 +9,8 @@
   The name of the product, eg 'SQL Clone'.
 .PARAMETER Version
   The version of the product.
+.PARAMETER AssemblyVersionMajorOnly
+  If true, set AssemblyVersion to only contain a major version. Useful for creating semantically versioned assemblies.
 .PARAMETER InfoVersionSuffix
   The suffix to add to -Version to make the informational version. Typically set to '-<branch name>' for non-default branches.
 .PARAMETER Year
