@@ -217,7 +217,7 @@ function Rewrite-AssemblyInfo {
     }
 
     $output = $output.TrimEnd()
-    if ($output -ne $rawinput.TrimEnd()) {
+    if ($null -eq $rawinput -or $output -ne $rawinput.TrimEnd()) {
         $output | Out-File $filename -Encoding UTF8
     }
 }
