@@ -14,6 +14,7 @@ $AssemblyInfoCommentsToIgnore = @(
     '//      Build Number',
     '//      Revision',
     '// You can specify all the values or you can default the Build and Revision Numbers',
+    '// You can specify all the values or you can default the Revision and Build Numbers',
     "// by using the '*' as shown below:",
     '// [assembly: AssemblyVersion("1.0.*")]',
     '//In order to begin building localizable applications, set',
